@@ -2,7 +2,7 @@
 
 Repo: https://github.com/Hungkao/baoyen-korean. Website: https://baoyen.hcao.site.
 
-Push vào `main` chạy kiểm thử Playwright, đóng gói allowlist và tải riêng nội dung `dist` lên `/var/www/bao-yen` trên `45.76.155.252`. Pull request chỉ kiểm thử. Workflow không sửa Nginx hay restart server. Giọng đọc và safe-area trên điện thoại thật vẫn cần nghiệm thu riêng.
+Push vào `main` chạy format, lint, kiểm thử Playwright, build bằng Vite và tải riêng nội dung `dist` lên `/var/www/bao-yen` trên `45.76.155.252`. Pull request chỉ kiểm thử. Workflow không sửa Nginx hay restart server. Giọng đọc và safe-area trên điện thoại thật vẫn cần nghiệm thu riêng.
 
 ## Thiết lập VPS một lần
 

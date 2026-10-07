@@ -4,8 +4,9 @@ dist/
 .deploy/
 .agents/
 .codex/
-.env
-.env.*
+# .env chỉ chứa cấu hình công khai và được commit; giá trị riêng trên máy để ở .env.local
+.env.local
+.env.*.local
 *.pem
 *.key
 preview-*.png

@@ -1,4 +1,4 @@
-// Chạy toàn bộ test: tự bật server phát triển, chạy lần lượt từng file, tắt server khi xong.
+// Chạy toàn bộ test: build bằng Vite, bật `vite preview` phục vụ dist/, chạy lần lượt từng file, tắt server khi xong.
 // Dùng: npm test            (tất cả)
 //       npm run test:unit   (chỉ test không cần trình duyệt)
 // Mặc định dùng Chromium của Playwright; đặt BROWSER_CHANNEL=msedge để chạy bằng Edge.
@@ -8,12 +8,7 @@ const http = require('node:http');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const unitTests = [
-  'tests/progress-unit.cjs',
-  'tests/legacy-words.cjs',
-  'tests/sejong-content.cjs',
-  'tests/release.cjs'
-];
+const unitTests = ['tests/progress-unit.cjs', 'tests/sejong-content.cjs', 'tests/release.cjs'];
 const browserTests = [
   'tests/smoke.cjs',
   'tests/topics.cjs',
@@ -51,11 +46,17 @@ const ping = () =>
 (async () => {
   let server = null;
   if (!onlyUnit && !(await ping())) {
-    server = spawn(process.execPath, ['scripts/serve.cjs'], { cwd: root, stdio: 'ignore' });
+    const vite = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
+    const built = spawnSync(process.execPath, [vite, 'build', '--logLevel', 'warn'], { cwd: root, stdio: 'inherit' });
+    if (built.status !== 0) process.exit(1);
+    server = spawn(process.execPath, [vite, 'preview', '--port', String(port), '--strictPort'], {
+      cwd: root,
+      stdio: 'ignore'
+    });
     for (let i = 0; i < 50 && !(await ping()); i++) await new Promise(r => setTimeout(r, 200));
     if (!(await ping())) {
       server.kill();
-      console.error('Không bật được server phát triển ở cổng ' + port);
+      console.error('Không bật được vite preview ở cổng ' + port);
       process.exit(1);
     }
   }

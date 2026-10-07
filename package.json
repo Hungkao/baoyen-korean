@@ -1,21 +1,28 @@
 {
   "name": "baoyen-korean",
   "private": true,
-  "description": "Bảo Yến học tiếng Hàn — web tĩnh HTML/CSS/JS thuần, không cần build để học.",
+  "description": "Bảo Yến học tiếng Hàn — web app học tiếng Hàn (Vite + JavaScript thuần, backend Supabase).",
   "scripts": {
-    "serve": "node scripts/serve.cjs",
-    "build": "node scripts/package-release.cjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node scripts/run-tests.cjs",
     "test:unit": "node scripts/run-tests.cjs --unit",
+    "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,cjs,css}\"",
     "format:check": "prettier --check \"**/*.{js,cjs,css}\"",
     "content-report": "node scripts/content-report.cjs"
   },
   "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.12.0",
+    "globals": "17.13.0",
     "playwright": "1.62.1",
-    "prettier": "3.9.9"
+    "prettier": "3.9.9",
+    "vite": "8.3.3"
   },
   "engines": {
-    "node": ">=20"
-  }
+    "node": ">=20.19"
+  },
+  "type": "module"
 }

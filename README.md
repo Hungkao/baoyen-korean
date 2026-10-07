@@ -1,10 +1,16 @@
 # Bảo Yến học tiếng Hàn ♡
 
-Góc học cá nhân cho Bảo Yến, khoảng 10–15 phút mỗi ngày. HTML/CSS/JavaScript thuần, không framework, CDN, dependency runtime hoặc bước build để học.
+Góc học cá nhân cho Bảo Yến, khoảng 10–15 phút mỗi ngày. JavaScript thuần (ES modules, không framework, không thư viện runtime), đóng gói bằng Vite; backend là Supabase (Auth + Postgres).
 
 ## Bắt đầu
 
-Mở index.html bằng trình duyệt, giữ các file runtime cùng thư mục. Nội dung không dùng module/fetch nên học được từ file://; lưu trữ và giọng đọc phụ thuộc trình duyệt. Preview trong ứng dụng Tệp/chat có thể không chạy JavaScript.
+Người học chỉ cần mở trang web đã phát hành (hoặc cài lên màn hình chính). Code dùng ES modules nên **không còn mở trực tiếp index.html bằng file://**; khi phát triển dùng `npm run dev`.
+
+```bash
+npm install
+npx playwright install chromium   # chỉ cần để chạy test
+npm run dev                       # http://127.0.0.1:5173, tự tải lại khi sửa code
+```
 
 Thanh dưới có 5 tab: Học, Chữ cái (kèm tab con Ghép âm), Từ vựng, Bài học và Luyện tập. Nút ☰ ở header mở Cài đặt, nơi có tài khoản, sao lưu và phần “Về góc học này”. Trang Học hiện lời nhắn, thẻ “Học tiếp” khi đang dở một bài (nếu không thì mời tự chọn bài), ôn đến hạn khi có mục đến hạn và tiến độ. App không tự chọn bài kế tiếp. Khi đang trong bài, header và thanh dưới ẩn; thoát bằng nút ✕. Thiết lập mục tiêu là tùy chọn. Mọi bài/checkpoint trong lộ trình đều mở, không cần đạt bài trước.
 
@@ -26,42 +32,67 @@ Lịch ôn lấy cảm hứng SM-2: đúng lần đầu 1 ngày, lần sau 6 ng�
 
 Giữ key khách hangul-little-steps-v1, 120 từ đầu và ID word:ko. Tài khoản dùng phạm vi riêng. Trường mới có mặc định cho dữ liệu cũ. Câu sửa ở đợt này đổi ID -r2, phiên dang dở quay về phần cần trả lời lại; kết quả hoàn thành cũ được giữ. Lượt luyện chủ đề chưa xong không lưu hàng đợi; từng kết quả đã trả lời được lưu.
 
-localStorage có try/catch; bị chặn vẫn học được trong phiên và hiện cảnh báo. Web Locks hạn chế nhiều tab cùng sửa; không có Web Locks thì dùng một tab. Xuất JSON trước đổi trình duyệt, chuyển file:// sang hosting hoặc xóa dữ liệu. Backup không chứa token.
+localStorage có try/catch; bị chặn vẫn học được trong phiên và hiện cảnh báo. Web Locks hạn chế nhiều tab cùng sửa; không có Web Locks thì dùng một tab. Xuất JSON trước khi đổi trình duyệt, đổi tên miền hoặc xóa dữ liệu (tiến độ cũ mở bằng file:// nằm ở origin khác, cần xuất/nhập JSON để chuyển sang). Backup không chứa token.
 
 ## Giọng đọc
 
 Web Speech chọn giọng Hàn, ko-KR, rate 0.8. Chỉ hủy giọng khi đang đọc/còn câu chờ, tránh reset bộ đọc lúc rảnh; tiếp tục bộ đọc nếu đang tạm dừng. Đây là biện pháp hạn chế khựng khi bắt đầu, chưa xác minh hết hiện tượng mất âm đầu trên thiết bị thật. Thiếu giọng có hướng dẫn và câu nghe chuyển sang đọc; không giả vờ đã phát âm. Phiên âm là gợi ý gần đúng. Offline âm thanh phụ thuộc giọng đã tải; phải kiểm tra trên điện thoại thật.
 
+## Cấu trúc thư mục
+
+```
+index.html            khung HTML các màn hình; nạp src/main.js
+public/               file chép nguyên: manifest, icons, sw.js (danh sách cache điền lúc build)
+src/
+  main.js             điểm vào, khởi động theo thứ tự
+  config.js           cấu hình công khai từ .env
+  app/                router, thanh trạng thái, khung điều hướng, window.__app cho test
+  features/           mỗi màn hình một thư mục: home, alphabet, syllables, vocabulary,
+                      practice, lessons, platform (dashboard/lộ trình/cài đặt), account
+  domain/             logic thuần: chấm bài, state machine bài học, SRS, chuẩn hóa tiến độ
+  content/            dữ liệu học: chữ cái, kho từ, giáo trình
+  data/               tiến độ trong localStorage, khóa nhiều tab
+  api/                client REST Supabase (ranh giới frontend ↔ backend)
+  services/           giọng đọc, PWA
+  shared/             tiện ích nhỏ: ngày giờ, DOM, trộn ngẫu nhiên
+  styles/             CSS
+supabase/             backend: schema.sql (bảng, RLS, RPC) và script áp dụng
+tests/                test thuần (Node) và test trình duyệt (Playwright)
+scripts/              chạy test, plugin service worker, bộ xuất ma trận nội dung
+```
+
+Chi tiết các lớp và quy tắc phụ thuộc: ARCHITECTURE.md.
+
 ## Phát triển và kiểm thử
 
-Lần đầu: `npm install` rồi `npx playwright install chromium`. Node/Playwright/Prettier chỉ cần cho phát triển, không cần để học.
+Node ≥ 20.19, Vite, Playwright, ESLint và Prettier chỉ cần cho phát triển, không cần để học.
 
-| Lệnh | Việc làm |
-|---|---|
-| `npm run serve` | Server phát triển, mở http://127.0.0.1:4173 |
-| `npm test` | Chạy toàn bộ test (tự bật server nếu chưa chạy) |
-| `npm run test:unit` | Chỉ test không cần trình duyệt (nhanh) |
-| `npm run format` | Định dạng JS/CSS bằng Prettier; CI chạy `format:check` |
-| `npm run build` | Đồng bộ `sw.js` và tạo `dist/` |
-| `npm run content-report` | Tạo lại docs/CONTENT_MATRIX.md |
+| Lệnh                     | Việc làm                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| `npm run dev`            | Server phát triển Vite ở http://127.0.0.1:5173 (không bật PWA)  |
+| `npm run build`          | Tạo `dist/` (JS/CSS có hash, sw.js có danh sách cache)          |
+| `npm run preview`        | Phục vụ `dist/` ở http://127.0.0.1:4173 để thử bản build và PWA |
+| `npm test`               | Build, bật preview rồi chạy toàn bộ test                        |
+| `npm run test:unit`      | Chỉ test không cần trình duyệt (nhanh)                          |
+| `npm run lint`           | ESLint: biến chưa khai báo, import thừa, biến toàn cục dễ nhầm  |
+| `npm run format`         | Định dạng JS/CSS bằng Prettier; CI chạy `format:check`          |
+| `npm run content-report` | Tạo lại docs/CONTENT_MATRIX.md                                  |
 
-Mặc định test chạy bằng Chromium của Playwright. Muốn dùng Edge trong PowerShell: `$env:BROWSER_CHANNEL = 'msedge'` trước `npm test`. Thêm file test mới phải khai báo trong scripts/run-tests.cjs (runner báo lỗi nếu quên).
+Mặc định test chạy bằng Chromium của Playwright. Muốn dùng Edge trong PowerShell: `$env:BROWSER_CHANNEL = 'msedge'` trước `npm test`. Thêm file test mới phải khai báo trong scripts/run-tests.cjs (runner báo lỗi nếu quên). Test trình duyệt đọc trạng thái app qua `window.__app` (src/app/debug-bridge.js), không qua biến toàn cục.
 
-Test tài khoản dùng API giả lập, không gửi email thật. Bộ release kiểm tra ngữ cảnh câu hỏi, bao phủ chữ, bảo toàn snapshot đạt và asset/cache.
+Test tài khoản dùng API giả lập, không gửi email thật. Bộ release build lại bằng Vite rồi kiểm tra ngữ cảnh câu hỏi, bao phủ chữ, bảo toàn snapshot đạt, danh sách file trong dist và danh sách cache của sw.js.
 
 ## Phát hành
 
-GitHub Actions tự kiểm thử và deploy lên VPS Vultr khi push vào `main`, sau khi cài SSH key và hai secret. Xem [thiết lập CI/CD Vultr](docs/VULTR_DEPLOY.md).
+GitHub Actions chạy format, lint, test rồi `npm run build` và deploy `dist/` lên VPS Vultr khi push vào `main`, sau khi cài SSH key và hai secret. Xem [thiết lập CI/CD Vultr](docs/VULTR_DEPLOY.md).
 
-`npm run build` tạo dist gồm toàn bộ file runtime/icons. Chỉ đưa nội dung dist lên hosting HTTPS; không cần Node trên thiết bị học. Script từ chối đóng gói nếu dist có file ngoài allowlist.
+Vite gắn hash nội dung vào tên file JS/CSS, nên Cloudflare và trình duyệt không bao giờ trộn JS cũ với HTML mới. Sau khi build, scripts/vite-plugin-sw.js ghi danh sách mọi file trong dist và tên cache theo hash vào `dist/sw.js`; không cần sửa sw.js bằng tay. dist chỉ chứa index.html, sw.js, manifest, icons và assets/ (test release báo lỗi nếu có file khác). Không đưa tests, scripts, SQL hay docs nội bộ lên web.
 
-Nguồn allowlist duy nhất là scripts/runtime-assets.cjs, dùng chung server và gói phát hành. Thêm file runtime: thêm vào allowlist và thẻ `<script>` trong index.html, rồi chạy `npm run build`. scripts/sync-sw.cjs tự gắn `?v=<hash nội dung>` vào link JS/CSS trong index.html và ghi danh sách cache/tên cache vào sw.js. Nhờ vậy Cloudflare và trình duyệt không bao giờ trộn JS cũ với HTML mới, và không cần tăng phiên bản cache bằng tay. Sau khi sửa bất kỳ file JS/CSS nào, chạy `npm run build` rồi commit cả index.html và sw.js (test release báo lỗi nếu quên). Không đưa tests, scripts, SQL, skills hoặc docs nội bộ lên web.
-
-PWA cache shell cùng phiên bản, không cache API/token. Sau lần tải đầu có thể mở nội dung offline; đăng nhập/đồng bộ cần mạng. Nút cập nhật áp dụng worker mới. iPhone: Chia sẻ → Thêm vào Màn hình chính.
+PWA cache shell cùng phiên bản, không cache API/token. Sau lần tải đầu có thể mở nội dung offline; đăng nhập/đồng bộ cần mạng. Nút cập nhật áp dụng worker mới. iPhone: Chia sẻ → Thêm vào Màn hình chính. Service worker không chạy ở `npm run dev`.
 
 ## Tài khoản
 
-config.js chỉ chứa URL và publishable key công khai; không đưa database password, service_role hoặc secret key vào frontend. Schema nằm ở supabase/schema.sql. RLS đọc theo chủ tài khoản, ghi qua RPC kiểm tra revision; xung đột cho chọn bản, giữ bản dự phòng trước khi thay.
+URL và publishable key công khai nằm trong `.env` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`), được nhúng vào bản build qua src/config.js. Giá trị riêng trên máy đặt ở `.env.local` (không commit). Không đưa database password, service_role hoặc secret key vào frontend; test release kiểm tra điều này. Mọi lời gọi backend đi qua src/api/supabase.js. Schema nằm ở supabase/schema.sql; supabase/setup-database.py áp dụng schema (hỏi mật khẩu, không lưu). RLS đọc theo chủ tài khoản, ghi qua RPC kiểm tra revision; xung đột cho chọn bản, giữ bản dự phòng trước khi thay.
 
 Cấu hình Site URL/Redirect URLs và email trong Supabase theo URL HTTPS thực tế. Người dùng đã báo setup backend; phiên hoàn thiện chưa xác minh email hoặc hai thiết bị thật. Xem docs/RELEASE_CHECKLIST.md để nghiệm thu thay vì suy từ test giả lập.
 
@@ -75,4 +106,3 @@ Cấu hình Site URL/Redirect URLs và email trong Supabase theo URL HTTPS thự
 - docs/history/: báo cáo cũ (RELEASE_REVIEW, RELEASE_NOTES, PHASE2_REPORT), chỉ để tra cứu.
 
 Chưa xác minh âm thanh/safe-area trên iPhone/Android thật; nội dung cần người có chuyên môn tiếng Hàn duyệt. Dashboard không suy mức thành thạo hoặc sẵn sàng TOPIK từ XP, mục đã xem hay mục tiêu tự khai.
-

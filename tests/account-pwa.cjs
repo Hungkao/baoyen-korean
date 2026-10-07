@@ -64,16 +64,16 @@ const progress = score => ({
       await route.fulfill({ json: result });
     });
     await page.goto(BASE);
-    await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
+    await page.waitForFunction(() => !window.__app?.tabAccess || window.__app?.tabAccess.writable());
     await page.evaluate(() => {
-      state.score = 10;
-      save();
-      updateStats();
+      __app.state.score = 10;
+      __app.save();
+      __app.updateStats();
     });
     await page.locator('#open-account').click();
     await page.locator('#settings [data-route=account]').click();
     async function login(email) {
-      await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
+      await page.waitForFunction(() => !window.__app?.tabAccess || window.__app?.tabAccess.writable());
       await page.locator('#account-email').fill(email);
       await page.locator('#email-form button').click();
       try {
@@ -86,7 +86,7 @@ const progress = score => ({
             emailValid: document.getElementById('account-email').validity.valid,
             emailHidden: document.getElementById('email-form').hidden,
             accountHidden: document.getElementById('account').hidden,
-            ...accountState()
+            ...__app.accountState()
           }))
         );
         throw error;
@@ -97,19 +97,19 @@ const progress = score => ({
     }
     await login('a@example.test');
     assert.equal(await page.locator('#score').textContent(), '30');
-    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem(BASE_KEY)).score), 10);
+    assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem(__app.BASE_KEY)).score), 10);
     await page.evaluate(() => {
-      state.score = 40;
-      save();
-      updateStats();
+      __app.state.score = 40;
+      __app.save();
+      __app.updateStats();
     });
     await page.waitForFunction(() => document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));
     assert.equal(remote.get(A).payload.progress.score, 40);
     remote.set(A, { revision: 3, payload: progress(999) });
     await page.evaluate(() => {
-      state.score = 50;
-      save();
-      updateStats();
+      __app.state.score = 50;
+      __app.save();
+      __app.updateStats();
     });
     await page.locator('#sync-conflict').waitFor({ state: 'visible' });
     assert.equal(remote.get(A).payload.progress.score, 999);
@@ -119,7 +119,7 @@ const progress = score => ({
     const savedSession = await page.evaluate(() => JSON.parse(localStorage.getItem('bao-yen-auth-v1')));
     assert.equal(savedSession.user.id, A);
     await page.evaluate(() =>
-      progressStore.updatePlatform(p => {
+      __app.progressStore.updatePlatform(p => {
         p.profile = {
           name: 'Bảo Yến',
           experience: 'new',
@@ -128,7 +128,7 @@ const progress = score => ({
           topikGoal: '3',
           minutes: 20,
           horizonMonths: 12,
-          completedAt: localDate()
+          completedAt: __app.localDate()
         };
         p.settings.showRomanization = false;
       })
@@ -137,10 +137,10 @@ const progress = score => ({
     assert.equal(remote.get(A).payload.progress.platform.profile.minutes, 20);
     assert.equal(remote.get(A).payload.progress.platform.settings.showRomanization, false);
     await page.evaluate(() => {
-      progressStore.learningAction({ type: 'start', lessonId: 'h2-a-eo' });
-      progressStore.learningAction({ type: 'next' });
-      progressStore.learningAction({ type: 'next' });
-      progressStore.learningAction({ type: 'answer', exerciseId: 'h2-a-eo-e1', value: 'ㅏ' });
+      __app.progressStore.learningAction({ type: 'start', lessonId: 'h2-a-eo' });
+      __app.progressStore.learningAction({ type: 'next' });
+      __app.progressStore.learningAction({ type: 'next' });
+      __app.progressStore.learningAction({ type: 'answer', exerciseId: 'h2-a-eo-e1', value: 'ㅏ' });
     });
     await page.waitForFunction(() => document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));
     assert.equal(remote.get(A).payload.version, 1);
@@ -155,8 +155,8 @@ const progress = score => ({
     await page.locator('#settings [data-route=account]').click();
     await page.waitForFunction(() => document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));
     assert.equal(refreshes, 1);
-    assert.equal(await page.evaluate(() => state.platform.profile.minutes), 20);
-    assert.equal(await page.evaluate(() => state.platform.learning.session.currentSection), 2);
+    assert.equal(await page.evaluate(() => __app.state.platform.profile.minutes), 20);
+    assert.equal(await page.evaluate(() => __app.state.platform.learning.session.currentSection), 2);
     const downloadEvent = page.waitForEvent('download');
     await page.locator('#export-progress').click();
     const download = await downloadEvent;
@@ -170,13 +170,13 @@ const progress = score => ({
     assert.equal(await page.locator('#score').textContent(), '10');
     await login('b@example.test');
     assert.equal(await page.locator('#score').textContent(), '7');
-    assert.equal(await page.evaluate(() => state.platform.profile), null);
-    assert.equal(await page.evaluate(() => state.platform.settings.showRomanization), true);
-    assert.equal(await page.evaluate(() => state.platform.learning.session), null);
+    assert.equal(await page.evaluate(() => __app.state.platform.profile), null);
+    assert.equal(await page.evaluate(() => __app.state.platform.settings.showRomanization), true);
+    assert.equal(await page.evaluate(() => __app.state.platform.learning.session), null);
     assert.equal(await page.locator('#export-rescue').isVisible(), true); // B's empty pre-pull backup only.
     assert.equal(
       await page.evaluate(
-        () => JSON.parse(localStorage.getItem('bao-yen-rescue-v1:' + progressStore.key())).progress.score
+        () => JSON.parse(localStorage.getItem('bao-yen-rescue-v1:' + __app.progressStore.key())).progress.score
       ),
       0
     );
@@ -202,15 +202,15 @@ const progress = score => ({
     assert.equal(await offline.locator('h1').innerText(), 'Bảo Yến học tiếng Hàn');
     await offline.locator('[data-screen=alphabet]').click();
     await offline.locator('.letter').first().click();
-    assert.equal(await offline.locator('#learned').textContent(), await offline.evaluate(() => '1/' + total));
-    await offline.evaluate(() => LessonUI.open('h2-a-eo'));
+    assert.equal(await offline.locator('#learned').textContent(), await offline.evaluate(() => '1/' + __app.total));
+    await offline.evaluate(() => __app.LessonUI.open('h2-a-eo'));
     await offline.getByRole('button', { name: 'Tiếp tục →', exact: true }).click();
     await offline.getByRole('button', { name: 'Tiếp tục →', exact: true }).click();
     await offline.locator('.exercise-choice').filter({ hasText: 'ㅏ' }).click();
     await offline.getByRole('button', { name: 'Kiểm tra', exact: true }).click();
     await offline.reload();
-    await offline.waitForFunction(() => tabAccess.writable());
-    assert.equal(await offline.evaluate(() => state.platform.learning.session.answers['h2-a-eo-e1'].value), 'ㅏ');
+    await offline.waitForFunction(() => __app.tabAccess.writable());
+    assert.equal(await offline.evaluate(() => __app.state.platform.learning.session.answers['h2-a-eo-e1'].value), 'ㅏ');
     assert.equal(await offline.locator('#lesson').isVisible(), true);
     const cached = await offline.evaluate(async () => {
       const all = [];
@@ -226,18 +226,18 @@ const progress = score => ({
     const tabs = await browser.newContext({ serviceWorkers: 'block' });
     const first = await tabs.newPage();
     await first.goto(BASE);
-    await first.waitForFunction(() => window.tabAccess?.writable());
+    await first.waitForFunction(() => window.__app?.tabAccess?.writable());
     await first.evaluate(() => {
-      state.score = 123;
-      save();
+      __app.state.score = 123;
+      __app.save();
     });
     const second = await tabs.newPage();
     await second.goto(BASE);
     await second.waitForFunction(() => document.querySelector('#tab-lock-message').textContent.includes('tab khác'));
-    assert.equal(await second.evaluate(() => window.tabAccess.writable()), false);
+    assert.equal(await second.evaluate(() => window.__app?.tabAccess.writable()), false);
     assert.equal(await second.evaluate(() => document.querySelector('main').inert), true);
     await first.close();
-    await second.waitForFunction(() => window.tabAccess.writable());
+    await second.waitForFunction(() => window.__app?.tabAccess.writable());
     assert.equal(await second.locator('#score').textContent(), '123');
     await tabs.close();
     console.log(

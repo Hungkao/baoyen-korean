@@ -1,10 +1,9 @@
 // Kiểm tra kho từ và buổi ôn theo chủ đề; Playwright chỉ dùng khi phát triển.
 const assert = require('node:assert/strict');
-const path = require('node:path');
-const { pathToFileURL } = require('node:url');
+const { APP_URL, noServiceWorker } = require('./helpers/app.cjs');
 const { chromium } = require('playwright');
-const legacyWords = require('./legacy-words.cjs');
-const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
+const legacyWords = require('./fixtures/legacy-words.cjs');
+const url = APP_URL;
 const topicsByLevel = {
   A1: ['chao_hoi', 'tinh_cam', 'gia_dinh', 'an_uong', 'do_vat', 'so_dem', 'noi_chon'],
   A2: ['nha_hang', 'giao_thong', 'mua_sam', 'thoi_tiet', 'hen_ho', 'sinh_hoat', 'suc_khoe'],
@@ -36,10 +35,10 @@ async function checkLayout(page) {
 
 async function answerScopedQuestion(page, scope, correct) {
   const questionData = await page.evaluate(() => ({
-    id: question.id,
-    item: question.item,
-    answer: question.answer,
-    field: question.field
+    id: __app.question.id,
+    item: __app.question.item,
+    answer: __app.question.answer,
+    field: __app.question.field
   }));
   assert.ok(
     scope.some(word => 'word:' + word.ko === questionData.id),
@@ -56,9 +55,9 @@ async function answerScopedQuestion(page, scope, correct) {
   const answer = correct ? questionData.answer : choices.find(choice => choice !== questionData.answer);
   await page.getByRole('button', { name: answer, exact: true }).click();
   // Một câu đã trả lời không được nhận thêm điểm khi sự kiện được gọi lại.
-  const score = await page.evaluate(() => state.score);
-  await page.evaluate(() => answerQuestion(question.answer, document.querySelector('.answer')));
-  assert.equal(await page.evaluate(() => state.score), score);
+  const score = await page.evaluate(() => __app.state.score);
+  await page.evaluate(() => __app.answerQuestion(__app.question.answer, document.querySelector('.answer')));
+  assert.equal(await page.evaluate(() => __app.state.score), score);
   await page.locator('#next-question').click();
   return questionData;
 }
@@ -69,9 +68,15 @@ async function answerScopedQuestion(page, scope, correct) {
     ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {})
   });
   try {
-    const context = await browser.newContext({ viewport: { width: 360, height: 844 }, reducedMotion: 'reduce' });
-    // Không cần mạng, đăng nhập hoặc gửi email thật để học từ file HTML.
-    await context.route(/^https?:/, route => route.abort());
+    const context = await browser.newContext({
+      ...noServiceWorker,
+      viewport: { width: 360, height: 844 },
+      reducedMotion: 'reduce'
+    });
+    // Không cần mạng, đăng nhập hoặc gửi email thật: chỉ cho tải chính app.
+    await context.route(/^https?:/, route =>
+      route.request().url().startsWith(new URL(url).origin) ? route.continue() : route.abort()
+    );
     await context.addInitScript(() => {
       window.testUtterances = [];
       Object.defineProperty(window, 'speechSynthesis', {
@@ -93,9 +98,9 @@ async function answerScopedQuestion(page, scope, correct) {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(url);
-    await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
+    await page.waitForFunction(() => !window.__app?.tabAccess || window.__app?.tabAccess.writable());
 
-    const vocabulary = await page.evaluate(() => words);
+    const vocabulary = await page.evaluate(() => __app.words);
     assert.deepEqual(
       vocabulary.slice(0, legacyWords.length).map(word => word.ko),
       legacyWords.map(word => word.ko),
@@ -129,7 +134,7 @@ async function answerScopedQuestion(page, scope, correct) {
     await page.evaluate(() => {
       try {
         localStorage.setItem(
-          KEY,
+          __app.KEY,
           JSON.stringify({
             score: 70,
             streak: 2,
@@ -145,13 +150,13 @@ async function answerScopedQuestion(page, scope, correct) {
       }
     });
     await page.reload();
-    await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
+    await page.waitForFunction(() => !window.__app?.tabAccess || window.__app?.tabAccess.writable());
     assert.deepEqual(
       await page.evaluate(() => ({
-        score: state.score,
-        wordIndex: state.wordIndex,
-        learned: state.learned,
-        mistakes: state.mistakes
+        score: __app.state.score,
+        wordIndex: __app.state.wordIndex,
+        learned: __app.state.learned,
+        mistakes: __app.state.mistakes
       })),
       {
         score: 70,
@@ -201,33 +206,33 @@ async function answerScopedQuestion(page, scope, correct) {
       { text: scope.find(word => word.ko === firstKo).exampleKo, lang: 'ko-KR', rate: 0.8 }
     ]);
     assert.equal(
-      await page.evaluate(id => Boolean(state.srs[id]), 'word:' + firstKo),
+      await page.evaluate(id => Boolean(__app.state.srs[id]), 'word:' + firstKo),
       false,
       'Xem thẻ không có nghĩa đã nhớ'
     );
     await page.locator('#remember-word').click();
-    const remembered = await page.evaluate(id => state.srs[id], 'word:' + firstKo);
+    const remembered = await page.evaluate(id => __app.state.srs[id], 'word:' + firstKo);
     assert.equal(remembered.reps, 1);
     assert.equal(remembered.interval, 1);
-    assert.ok(remembered.due > (await page.evaluate(() => localDate())));
+    assert.ok(remembered.due > (await page.evaluate(() => __app.localDate())));
     await page.reload();
-    await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
-    assert.deepEqual(await page.evaluate(id => state.srs[id], 'word:' + firstKo), remembered);
+    await page.waitForFunction(() => !window.__app?.tabAccess || window.__app?.tabAccess.writable());
+    assert.deepEqual(await page.evaluate(id => __app.state.srs[id], 'word:' + firstKo), remembered);
     await openVocabulary(page);
     const againKo = await page.locator('#word-ko').innerText();
     await page.locator('#reveal-word').click();
     await page.locator('#again-word').click();
-    assert.equal(await page.evaluate(id => state.srs[id].reps, 'word:' + againKo), 0);
+    assert.equal(await page.evaluate(id => __app.state.srs[id].reps, 'word:' + againKo), 0);
 
     // Buổi luyện giới hạn 10 câu, có đáp án nhiễu cùng chủ đề và tổng kết chính xác.
     await page.locator('#practice-topic-btn').click();
-    const scoreBefore = await page.evaluate(() => state.score);
+    const scoreBefore = await page.evaluate(() => __app.state.score);
     const asked = [];
     for (let index = 0; index < 10; index++) asked.push(await answerScopedQuestion(page, scope, index >= 2));
     assert.equal(new Set(asked.map(item => item.id)).size, 10, 'Không hỏi lặp trong một buổi');
     assert.equal(await page.locator('#session-summary').isVisible(), true);
     assert.match(await page.locator('#session-result').innerText(), /8\s*\/\s*10/);
-    assert.equal(await page.evaluate(() => state.score), scoreBefore + 80);
+    assert.equal(await page.evaluate(() => __app.state.score), scoreBefore + 80);
     const mistakesText = await page.locator('#session-mistakes').innerText();
     assert.ok(asked.slice(0, 2).every(item => mistakesText.includes(item.item.ko)));
     for (const colorScheme of ['light', 'dark']) {
@@ -236,30 +241,34 @@ async function answerScopedQuestion(page, scope, correct) {
     }
     await page.locator('#repeat-topic').click();
     assert.equal(await page.locator('#session-summary').isVisible(), false);
-    const repeatedKo = await page.evaluate(() => question.item.ko);
+    const repeatedKo = await page.evaluate(() => __app.question.item.ko);
     assert.ok(scope.some(word => word.ko === repeatedKo));
     await page.locator('#free-practice').click();
-    assert.equal(await page.evaluate(() => topicPracticeMode), null, 'Luyện tự do phải bỏ phạm vi buổi trước');
+    assert.equal(await page.evaluate(() => __app.topicPracticeMode), null, 'Luyện tự do phải bỏ phạm vi buổi trước');
     await openVocabulary(page);
     await page.locator('#practice-topic-btn').click();
     await page.locator('[data-screen=home]').click();
     await page.locator('[data-screen=alphabet]').click();
     await page.locator('#alphabet [data-subscreen=syllables]').click();
-    assert.equal(await page.evaluate(() => topicPracticeMode), null, 'Chọn phần học khác phải bỏ phạm vi lượt chủ đề');
+    assert.equal(
+      await page.evaluate(() => __app.topicPracticeMode),
+      null,
+      'Chọn phần học khác phải bỏ phạm vi lượt chủ đề'
+    );
 
     // Ôn chủ đề chỉ lấy mục đến hạn, không lấy từ ngoài chủ đề hoặc từ chưa đến hạn.
     await openVocabulary(page);
     const dueIds = scope.slice(0, 2).map(word => 'word:' + word.ko);
     await page.evaluate(
       ({ dueIds, futureId, outsideId }) => {
-        const due = localDate(),
+        const due = __app.localDate(),
           future = '2099-01-01';
-        state.srs = {};
+        __app.state.srs = {};
         for (const id of [...dueIds, outsideId])
-          state.srs[id] = { interval: 1, ease: 2.5, due, reps: 1, lastReviewed: dayBefore(due) };
-        state.srs[futureId] = { interval: 6, ease: 2.5, due: future, reps: 2, lastReviewed: due };
-        save();
-        renderWord();
+          __app.state.srs[id] = { interval: 1, ease: 2.5, due, reps: 1, lastReviewed: __app.dayBefore(due) };
+        __app.state.srs[futureId] = { interval: 6, ease: 2.5, due: future, reps: 2, lastReviewed: due };
+        __app.save();
+        __app.renderWord();
       },
       {
         dueIds,
@@ -295,17 +304,19 @@ async function answerScopedQuestion(page, scope, correct) {
     }
     assert.deepEqual(errors, []);
     // File HTML vẫn học được khi trình duyệt không có Web Locks.
-    const fallbackContext = await browser.newContext();
+    const fallbackContext = await browser.newContext(noServiceWorker);
     await fallbackContext.addInitScript(() => Object.defineProperty(navigator, 'locks', { value: undefined }));
     const fallback = await fallbackContext.newPage();
     fallback.on('pageerror', error => errors.push(error.message));
     await fallback.goto(url);
-    await fallback.waitForFunction(() => window.tabAccess?.writable());
+    await fallback.waitForFunction(() => window.__app?.tabAccess?.writable());
     await fallback.locator('[data-screen=vocabulary]').click();
     await fallback.locator('#level-filter').selectOption('B2');
     await fallback.locator('#topic-select').selectOption('kinh_ngu');
     await fallback.locator('#practice-topic-btn').click();
-    await fallback.getByRole('button', { name: await fallback.evaluate(() => question.answer), exact: true }).click();
+    await fallback
+      .getByRole('button', { name: await fallback.evaluate(() => __app.question.answer), exact: true })
+      .click();
     assert.equal(await fallback.locator('#score').textContent(), '10');
     await fallbackContext.close();
     assert.deepEqual(errors, []);

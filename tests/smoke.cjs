@@ -1,9 +1,9 @@
 // Một bài kiểm tra đầu-cuối; Playwright chỉ dùng khi phát triển.
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const { pathToFileURL } = require('node:url');
+const { APP_URL, noServiceWorker } = require('./helpers/app.cjs');
 const { chromium } = require('playwright');
-const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
+const url = APP_URL;
 
 (async () => {
   const browser = await chromium.launch({
@@ -11,7 +11,11 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     ...(process.env.BROWSER_CHANNEL ? { channel: process.env.BROWSER_CHANNEL } : {})
   });
   try {
-    const context = await browser.newContext({ viewport: { width: 360, height: 780 }, reducedMotion: 'reduce' });
+    const context = await browser.newContext({
+      ...noServiceWorker,
+      viewport: { width: 360, height: 780 },
+      reducedMotion: 'reduce'
+    });
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
@@ -44,10 +48,10 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     const learned = await page.locator('#learned').textContent();
     await page.locator('.letter').first().click();
     assert.equal(await page.locator('#learned').textContent(), learned);
-    if (await page.evaluate(() => !koreanVoice)) assert.ok(await page.locator('#speech-notice').innerText());
+    if (await page.evaluate(() => !__app.koreanVoice)) assert.ok(await page.locator('#speech-notice').innerText());
     await page.locator('[data-screen=vocabulary]').click();
     const word = await page.locator('#word-ko').innerText();
-    for (let i = 0; i < (await page.evaluate(() => words.length)); i++) await page.locator('#next-word').click();
+    for (let i = 0; i < (await page.evaluate(() => __app.words.length)); i++) await page.locator('#next-word').click();
     assert.equal(await page.locator('#word-ko').innerText(), word);
     await page.locator('[data-screen=practice]').click();
     for (let i = 0; i < 25; i++) {
@@ -55,16 +59,16 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
       const answers = await page.locator('.answer').allTextContents();
       assert.equal(new Set(answers).size, 4);
       await page.locator('#answers button').first().focus();
-      await page.evaluate(() => newQuestion());
+      await page.evaluate(() => __app.newQuestion());
     }
-    const right = await page.evaluate(() => question.answer);
+    const right = await page.evaluate(() => __app.question.answer);
     await page.getByRole('button', { name: right, exact: true }).click();
-    await page.evaluate(() => answerQuestion(question.answer, document.querySelector('.answer')));
+    await page.evaluate(() => __app.answerQuestion(__app.question.answer, document.querySelector('.answer')));
     assert.equal(await page.locator('#score').textContent(), '10');
     assert.equal(await page.locator('#streak').textContent(), '1');
     await page.locator('#next-question').click();
     const wrong = await page.evaluate(
-      () => [...document.querySelectorAll('.answer')].find(n => n.textContent !== question.answer).textContent
+      () => [...document.querySelectorAll('.answer')].find(n => n.textContent !== __app.question.answer).textContent
     );
     await page.getByRole('button', { name: wrong, exact: true }).click();
     assert.equal(await page.locator('#streak').textContent(), '0');
@@ -80,33 +84,33 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     assert.equal(await page.locator('#score').textContent(), '10');
     assert.equal(
       await page.locator('#learned').textContent(),
-      await page.evaluate(() => words.length + 1 + '/' + total)
+      await page.evaluate(() => __app.words.length + 1 + '/' + __app.total)
     );
     // Lỗi dữ liệu không được làm app ngừng hoạt động.
-    await page.evaluate(() => localStorage.setItem(KEY, '{broken'));
+    await page.evaluate(() => localStorage.setItem(__app.KEY, '{broken'));
     await page.reload();
     assert.ok(await page.locator('#storage-notice').innerText());
     assert.equal(await page.locator('#score').textContent(), '0');
     // Dữ liệu phiên bản cũ không có trường bài ghép âm vẫn giữ tiến độ.
     await page.evaluate(() =>
       localStorage.setItem(
-        KEY,
+        __app.KEY,
         JSON.stringify({ score: 70, streak: 2, learned: ['letter:ㅏ', 'word:물'], wordIndex: 9 })
       )
     );
     await page.reload();
     assert.equal(await page.locator('#score').textContent(), '70');
-    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + total));
+    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + __app.total));
     await page.locator('[data-screen=alphabet]').click();
     await page.locator('#alphabet [data-subscreen=syllables]').click();
     assert.deepEqual(
       await page.evaluate(() => [
-        composeSyllable('ㄱ', 'ㅏ'),
-        composeSyllable('ㅇ', 'ㅏ'),
-        composeSyllable('ㅎ', 'ㅏ', 'ㄴ'),
-        composeSyllable('ㅁ', 'ㅜ', 'ㄹ'),
-        composeSyllable('ㅂ', 'ㅏ', 'ㅂ'),
-        composeSyllable('x', 'ㅏ')
+        __app.composeSyllable('ㄱ', 'ㅏ'),
+        __app.composeSyllable('ㅇ', 'ㅏ'),
+        __app.composeSyllable('ㅎ', 'ㅏ', 'ㄴ'),
+        __app.composeSyllable('ㅁ', 'ㅜ', 'ㄹ'),
+        __app.composeSyllable('ㅂ', 'ㅏ', 'ㅂ'),
+        __app.composeSyllable('x', 'ㅏ')
       ]),
       ['가', '아', '한', '물', '밥', '']
     );
@@ -124,17 +128,17 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     await page.locator('#alphabet [data-subscreen=syllables]').click();
     assert.equal(await page.locator('#lesson-progress').innerText(), '6 / 6 ví dụ đã đọc');
     assert.equal(await page.locator('#score').textContent(), '70');
-    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + total));
+    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + __app.total));
     await page.evaluate(() =>
       localStorage.setItem(
-        KEY,
+        __app.KEY,
         JSON.stringify({ score: -10, streak: 'bad', learned: ['letter:ㅏ', 'letter:ㅏ', 'unknown'], wordIndex: 999 })
       )
     );
     await page.reload();
-    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '1/' + total));
+    assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '1/' + __app.total));
     assert.equal(await page.locator('#score').textContent(), '0');
-    const blockedContext = await browser.newContext();
+    const blockedContext = await browser.newContext(noServiceWorker);
     const blocked = await blockedContext.newPage();
     blocked.on('pageerror', error => errors.push(error.message));
     await blocked.addInitScript(() => {
@@ -148,9 +152,9 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     await blocked.locator('[data-screen=alphabet]').click();
     await blocked.locator('.letter').first().click();
     assert.ok((await blocked.locator('#storage-notice').innerText()).includes('chặn'));
-    assert.equal(await blocked.locator('#learned').textContent(), await page.evaluate(() => '1/' + total));
+    assert.equal(await blocked.locator('#learned').textContent(), await page.evaluate(() => '1/' + __app.total));
     // Giọng tải chậm: sau voiceschanged, bấm nghe phải dùng ko-KR/0.8.
-    const voiceContext = await browser.newContext();
+    const voiceContext = await browser.newContext(noServiceWorker);
     const voicePage = await voiceContext.newPage();
     voicePage.on('pageerror', error => errors.push(error.message));
     await voicePage.addInitScript(() => {
@@ -209,18 +213,22 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     for (const flag of ['speaking', 'pending']) {
       await voicePage.evaluate(flag => {
         speechSynthesis[flag] = true;
-        speak('아');
+        __app.speak('아');
         speechSynthesis[flag] = false;
       }, flag);
     }
     assert.equal(await voicePage.evaluate(() => window.testCancels), 2, 'Hủy câu đang đọc hoặc chờ khi nghe câu khác');
     await voicePage.evaluate(() => {
       speechSynthesis.paused = true;
-      speak('아');
+      __app.speak('아');
     });
     assert.equal(await voicePage.evaluate(() => window.testResumes), 1, 'Tiếp tục bộ đọc đang tạm dừng');
     // Lộ trình 56 ngày cũ: giữ dữ liệu và cách phân từ, không còn giao diện bài hằng ngày.
-    const legacyContext = await browser.newContext({ viewport: { width: 390, height: 950 }, reducedMotion: 'reduce' });
+    const legacyContext = await browser.newContext({
+      ...noServiceWorker,
+      viewport: { width: 390, height: 950 },
+      reducedMotion: 'reduce'
+    });
     const legacyPage = await legacyContext.newPage();
     legacyPage.on('pageerror', e => errors.push(e.message));
     await legacyPage.addInitScript(() => {
@@ -233,21 +241,21 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
       }
     });
     await legacyPage.goto(url);
-    assert.ok(await legacyPage.evaluate(() => words.length >= 480));
+    assert.ok(await legacyPage.evaluate(() => __app.words.length >= 480));
     assert.equal(
       await legacyPage.evaluate(
-        () => new Set(dailyPlan.filter(p => p.type === 'word').flatMap(p => p.items.map(x => x.ko))).size
+        () => new Set(__app.dailyPlan.filter(p => p.type === 'word').flatMap(p => p.items.map(x => x.ko))).size
       ),
       120
     );
     assert.equal(await legacyPage.locator('#home').isVisible(), true);
     assert.equal(await legacyPage.locator('#start-daily').count(), 0, 'Không còn nút bài hằng ngày');
-    assert.deepEqual(await legacyPage.evaluate(() => state.completedDays), [{ day: 1, date: '2026-10-01' }]);
-    assert.equal(await legacyPage.evaluate(() => activeDay()), 2);
+    assert.deepEqual(await legacyPage.evaluate(() => __app.state.completedDays), [{ day: 1, date: '2026-10-01' }]);
+    assert.equal(await legacyPage.evaluate(() => __app.activeDay()), 2);
     // Lưu lại không làm mất ngày đã hoàn thành.
-    await legacyPage.evaluate(() => save());
+    await legacyPage.evaluate(() => __app.save());
     await legacyPage.reload();
-    assert.deepEqual(await legacyPage.evaluate(() => state.completedDays), [{ day: 1, date: '2026-10-01' }]);
+    assert.deepEqual(await legacyPage.evaluate(() => __app.state.completedDays), [{ day: 1, date: '2026-10-01' }]);
     await legacyPage.evaluate(() => localStorage.clear());
     await legacyPage.reload();
     await legacyPage.evaluate(() => window.scrollTo(0, 0));
@@ -263,16 +271,22 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     await page.screenshot({ path: path.resolve(__dirname, '../preview-mobile.png'), fullPage: true });
     const srsCheck = await page.evaluate(() => {
       const id = 'word:물';
-      state.srs = {};
-      updateSRS(id, true);
-      const first = state.srs[id].interval;
-      updateSRS(id, true);
-      const repeated = state.srs[id].interval;
-      state.srs[id].lastReviewed = dayBefore(localDate());
-      updateSRS(id, true);
-      const second = state.srs[id].interval;
-      updateSRS(id, false);
-      return { first, repeated, second, failed: state.srs[id].interval, empty: normalizeProgress(null).srs };
+      __app.state.srs = {};
+      __app.recordReview(id, true);
+      const first = __app.state.srs[id].interval;
+      __app.recordReview(id, true);
+      const repeated = __app.state.srs[id].interval;
+      __app.state.srs[id].lastReviewed = __app.dayBefore(__app.localDate());
+      __app.recordReview(id, true);
+      const second = __app.state.srs[id].interval;
+      __app.recordReview(id, false);
+      return {
+        first,
+        repeated,
+        second,
+        failed: __app.state.srs[id].interval,
+        empty: __app.normalizeProgress(null).srs
+      };
     });
     assert.deepEqual(srsCheck, { first: 1, repeated: 1, second: 6, failed: 1, empty: {} });
     console.log(
