@@ -1,0 +1,84 @@
+name: Test and deploy to Vultr
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BROWSER_CHANNEL: chromium
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/test-tools" --no-package-lock playwright@1.62.1
+          echo "NODE_PATH=$RUNNER_TEMP/test-tools/node_modules" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/test-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Test learning, storage, layout and PWA
+        run: |
+          node scripts/serve.cjs > "$RUNNER_TEMP/bao-yen-server.log" 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:4173/ > /dev/null
+          node tests/smoke.cjs
+          node tests/topics.cjs
+          node tests/account-pwa.cjs
+          node tests/foundation.cjs
+          node tests/learning.cjs
+          node tests/free-learning.cjs
+          node tests/sejong-content.cjs
+          node tests/release.cjs
+          node scripts/package-release.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: vultr-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://baoyen.hcao.site
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: runtime
+          path: dist
+      - name: Deploy runtime over SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          test -n "$VPS_SSH_KEY" || { echo 'Missing VPS_SSH_KEY secret'; exit 1; }
+          test -n "$VPS_KNOWN_HOSTS" || { echo 'Missing VPS_KNOWN_HOSTS secret'; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/id_ed25519' EXIT
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 deploy@45.76.155.252 'test -d /var/www/bao-yen && test -w /var/www/bao-yen && command -v rsync'
+          rsync -rltz --delay-updates --chmod=D755,F644 -e 'ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15' dist/ deploy@45.76.155.252:/var/www/bao-yen/

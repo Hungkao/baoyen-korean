@@ -1,0 +1,11 @@
+.vercel
+node_modules/
+dist/
+.deploy/
+.agents/
+.codex/
+.env
+.env.*
+*.pem
+*.key
+preview-*.png

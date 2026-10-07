@@ -1,0 +1,2 @@
+// Nguồn chung cho server phát triển và gói phát hành; không chứa file nội bộ.
+module.exports = ['index.html', 'styles.css', 'app.js', 'course-content.js', 'platform-engine.js', 'platform-ui.js', 'exercise-engine.js', 'lesson-content.js', 'lesson-engine.js', 'lesson-renderer.js', 'vocabulary-basic.js', 'vocabulary-intermediate.js', 'tab-lock.js', 'account.js', 'pwa.js', 'config.js', 'sw.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
