@@ -30,9 +30,11 @@ const progress = score => ({version:1,progress:{score,streak:0,learned:['word:ым
    await route.fulfill({json:result});
   });
   await page.goto(BASE);
+  await page.waitForFunction(()=>!window.tabAccess || window.tabAccess.writable());
   await page.evaluate(()=>{state.score=10;save();updateStats();});
   await page.locator('#open-account').click();
   async function login(email){
+   await page.waitForFunction(()=>!window.tabAccess || window.tabAccess.writable());
    await page.locator('#account-email').fill(email);
    await page.locator('#email-form button').click();
    try { await page.locator('#code-form').waitFor({state:'visible'}); }
