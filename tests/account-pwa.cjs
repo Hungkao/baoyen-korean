@@ -32,7 +32,15 @@ const progress = score => ({version:1,progress:{score,streak:0,learned:['word:�
   await page.goto(BASE);
   await page.evaluate(()=>{state.score=10;save();updateStats();});
   await page.locator('#open-account').click();
-  async function login(email){await page.locator('#account-email').fill(email);await page.locator('#email-form button').click();await page.locator('#account-code').fill('123456');await page.locator('#code-form button[type=submit]').click();await page.waitForFunction(()=>document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));}
+  async function login(email){
+   await page.locator('#account-email').fill(email);
+   await page.locator('#email-form button').click();
+   try { await page.locator('#code-form').waitFor({state:'visible'}); }
+   catch(error){console.error('Login diagnostic:',await page.evaluate(()=>({auth:document.getElementById('auth-message').textContent,emailValid:document.getElementById('account-email').validity.valid,emailHidden:document.getElementById('email-form').hidden,accountHidden:document.getElementById('account').hidden,...accountState()})));throw error;}
+   await page.locator('#account-code').fill('123456');
+   await page.locator('#code-form button[type=submit]').click();
+   await page.waitForFunction(()=>document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));
+  }
   await login('a@example.test');
   assert.equal(await page.locator('#score').textContent(),'30');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(BASE_KEY)).score),10);
