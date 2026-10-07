@@ -433,11 +433,6 @@ header small {
   font-size: 27px;
   flex-shrink: 0;
 }
-.brand-sub {
-  font-size: 12px;
-  margin: 2px 0;
-  color: var(--muted);
-}
 .stats {
   gap: 7px;
   margin: 14px 0 10px;
@@ -768,22 +763,6 @@ button {
     font-size: 13px;
   }
 }
-.platform-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 16px 0;
-}
-.platform-nav button {
-  flex: 1;
-  padding: 10px 8px;
-  font-size: 12px;
-  min-width: 90px;
-}
-.platform-nav [aria-current='page'] {
-  background: var(--soft);
-  border-color: var(--accent);
-}
 .platform-form label {
   display: block;
   margin: 16px 0 5px;
@@ -863,43 +842,6 @@ button {
   margin: 10px 0;
   overflow-wrap: anywhere;
 }
-.learning-menu {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 20px 0;
-}
-.learning-menu button {
-  text-align: left;
-  white-space: normal;
-  padding: 18px 14px;
-  min-width: 44px;
-  background: var(--card);
-}
-.learning-menu strong,
-.learning-menu span {
-  display: block;
-}
-.learning-menu strong {
-  font-size: 19px;
-  color: var(--accent-text);
-  margin-bottom: 8px;
-}
-.learning-menu span {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-.progress-summary {
-  margin: 16px 0;
-}
-.progress-summary summary {
-  cursor: pointer;
-  min-height: 44px;
-  padding: 12px 0;
-  color: var(--muted);
-}
-.progress-summary summary:focus-visible,
 .core-unit summary:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
@@ -1042,22 +984,373 @@ button {
   font-size: 13px;
   color: var(--muted);
 }
-@media (min-width: 1100px) {
-  .platform-nav {
-    position: fixed;
-    left: 24px;
-    top: 100px;
-    width: 170px;
-    display: grid;
-    z-index: 5;
+
+/* === Khung app gọn (v2): header một hàng, thanh dưới 5 tab, tab con Chữ cái/Ghép âm === */
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: calc(-1 * max(24px, env(safe-area-inset-top))) -18px 8px;
+  padding: max(10px, env(safe-area-inset-top)) 18px 10px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.appbar h1 {
+  flex: 1;
+  min-width: 0;
+  font-size: 17px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.appbar .brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 20px;
+}
+.score-chip {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-text);
+  background: var(--soft);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-variant-numeric: tabular-nums;
+}
+.icon-button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+nav .nav-icon {
+  width: 24px;
+  height: 24px;
+  margin: 0 auto 3px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  font-size: 19px;
+  line-height: 24px;
+  font-weight: 700;
+}
+nav button {
+  font-size: 11px;
+  color: var(--muted);
+}
+nav button[aria-current='page'] .nav-icon {
+  fill: var(--soft);
+}
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin: 8px 0 4px;
+  border-radius: 16px;
+  background: var(--soft);
+}
+.segmented button {
+  border: 0;
+  background: transparent;
+  font-weight: 650;
+  color: var(--muted);
+  border-radius: 12px;
+}
+.segmented button[aria-current='page'] {
+  background: var(--card);
+  color: var(--accent-text);
+  box-shadow: var(--shadow);
+}
+.eyebrow {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+/* Nút không xuống dòng ở thẻ từ */
+.word-card .actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+}
+.word-card .actions button,
+.practice-tools button {
+  white-space: nowrap;
+}
+.practice-tools {
+  margin-top: 4px;
+}
+#question-ko.is-letter {
+  font-size: 76px;
+  line-height: 1.2;
+}
+.float-heart {
+  position: fixed;
+  z-index: 30;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  font-weight: 800;
+  color: var(--accent-text);
+  animation: float-heart 0.9s ease-out forwards;
+}
+@keyframes float-heart {
+  to {
+    transform: translate(-50%, -48px);
+    opacity: 0;
   }
-  .platform-nav button {
-    text-align: left;
-    font-size: 14px;
-  }
-  .wrap {
-    max-width: 760px;
-    margin-left: max(220px, calc((100vw - 760px) / 2));
-    margin-right: auto;
-  }
+}
+/* Trang Học */
+#home .love-note {
+  margin-top: 8px;
+  border-style: solid;
+  background: var(--soft);
+}
+#home .love-note h2 {
+  font-size: 19px;
+  margin: 0;
+}
+#home .love-note p {
+  font-size: 14px;
+}
+.progress-card h3 {
+  margin-top: 0;
+}
+.next-card .card-label,
+.review-row span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.next-card h3 {
+  font-size: 21px;
+  margin: 4px 0 12px;
+}
+.next-card progress {
+  margin: 4px 0 0;
+}
+.next-card .primary {
+  display: block;
+  width: 100%;
+  margin: 12px 0 8px;
+}
+.next-card button:not(.primary) {
+  width: 100%;
+  border-style: dashed;
+}
+.review-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  padding: 16px 18px;
+  border-radius: 20px;
+  margin: 0 0 16px;
+}
+.review-row strong {
+  color: var(--accent-text);
+}
+.link-button {
+  display: block;
+  margin: 0 auto 8px;
+  border: 0;
+  background: transparent;
+  color: var(--accent-text);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+/* === Bài học toàn màn: ẩn header và thanh dưới, nút chính dính đáy === */
+body[data-view='lesson'] .appbar,
+body[data-view='lesson'] nav {
+  display: none;
+}
+body[data-view='lesson'] .wrap {
+  padding-bottom: calc(32px + env(safe-area-inset-bottom));
+}
+.lesson-bar {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: calc(-1 * max(24px, env(safe-area-inset-top))) -18px 12px;
+  padding: max(10px, env(safe-area-inset-top)) 18px 10px;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.lesson-bar-main {
+  flex: 1;
+  min-width: 0;
+}
+.lesson-bar h2 {
+  font-size: 16px;
+  margin: 0 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lesson-bar progress {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.lesson-step-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lesson-step-head .note {
+  margin: 0;
+}
+#lesson-body > .lesson-step-head > .back-link {
+  margin: 0;
+}
+.back-link {
+  border: 0;
+  background: transparent;
+  padding: 8px 4px;
+  color: var(--accent-text);
+  font-size: 14px;
+  font-weight: 650;
+}
+/* Nút chính luôn trong tầm ngón cái */
+#lesson-body > .primary,
+#lesson .exercise-form > button.primary {
+  position: sticky;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  z-index: 4;
+  width: 100%;
+  min-height: 54px;
+  box-shadow: 0 6px 20px #e8556d40;
+}
+/* === Lộ trình một đường === */
+.roadmap-group > h3 {
+  font-size: 19px;
+  margin: 26px 0 0;
+}
+.roadmap-group > .note {
+  margin: 2px 0 10px;
+}
+.core-unit {
+  padding: 6px 16px;
+  margin: 10px 0;
+}
+.core-unit summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+}
+.core-unit summary::-webkit-details-marker {
+  display: none;
+}
+.unit-count {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.core-unit[open] summary {
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 6px;
+}
+.core-lesson {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0;
+  border-color: transparent;
+  background: transparent;
+  padding: 10px 6px;
+}
+.core-unit > .core-lesson:last-child {
+  margin-bottom: 10px;
+}
+.lesson-mark {
+  color: var(--accent-text);
+  font-weight: 800;
+  text-align: center;
+}
+.lesson-state {
+  font-size: 12px;
+  color: var(--muted);
+}
+.core-lesson.is-current {
+  background: var(--soft);
+  border-color: var(--accent);
+}
+.core-lesson.is-current .lesson-state {
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.legacy-library {
+  margin-top: 28px;
+}
+.legacy-library > summary {
+  color: var(--muted);
+}
+.roadmap-level h3 {
+  font-size: 18px;
+}
+.about-app summary {
+  font-size: 15px;
+}
+.about-app p {
+  font-size: 14px;
+}
+/* Thanh tiến độ cùng tông hồng trên mọi trình duyệt */
+progress {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--soft);
+  height: 8px;
+}
+progress::-webkit-progress-bar {
+  background: var(--soft);
+  border-radius: 999px;
+}
+progress::-webkit-progress-value {
+  background: var(--accent);
+  border-radius: 999px;
+}
+progress::-moz-progress-bar {
+  background: var(--accent);
+  border-radius: 999px;
+}
+.appbar .brand-icon {
+  display: none;
+}
+.appbar h1::before {
+  content: '♡ ';
+  color: var(--accent-text);
 }

@@ -133,7 +133,7 @@ console.log(
     await p.locator('[data-study=roadmap]').click();
     assert.equal(await p.locator('.core-lesson[data-status=available]').count(), C.lessons.length);
     await p.locator('[data-screen=home]').click();
-    assert.equal(await p.locator('[data-study]').count(), 5);
+    assert.equal(await p.locator('[data-study]').count(), 1);
     const integrity = await p.evaluate(() => ({
       missing: LESSON_CONTENT.lessons
         .flatMap(l => l.vocabularyIds)

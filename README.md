@@ -6,7 +6,7 @@ Góc học cá nhân cho Bảo Yến, khoảng 10–15 phút mỗi ngày. HTML/C
 
 Mở index.html bằng trình duyệt, giữ các file runtime cùng thư mục. Nội dung không dùng module/fetch nên học được từ file://; lưu trữ và giọng đọc phụ thuộc trình duyệt. Preview trong ứng dụng Tệp/chat có thể không chạy JavaScript.
 
-Trang chính là nơi chọn Chữ cái, Ghép âm, Từ vựng, Học theo bài hoặc Luyện tập theo sở thích. Không còn gợi ý “hôm nay học gì” hay mục tiêu thời gian trên trang này. Thiết lập mục tiêu là tùy chọn. Mọi bài/checkpoint trong lộ trình đều mở, không cần đạt bài trước.
+Thanh dưới có 5 tab: Học, Chữ cái (kèm tab con Ghép âm), Từ vựng, Bài học và Luyện tập. Nút ☰ ở header mở Cài đặt, nơi có tài khoản, sao lưu và phần “Về góc học này”. Trang Học hiện lời nhắn, thẻ “Học tiếp” khi đang dở một bài (nếu không thì mời tự chọn bài), ôn đến hạn khi có mục đến hạn và tiến độ. App không tự chọn bài kế tiếp. Khi đang trong bài, header và thanh dưới ẩn; thoát bằng nút ✕. Thiết lập mục tiêu là tùy chọn. Mọi bài/checkpoint trong lộ trình đều mở, không cần đạt bài trước.
 
 Giáo trình có 43 bài/checkpoint trong 23 unit: 25 Hangul, 8 bài/checkpoint sơ cấp cũ và 10 bài tình huống mới. Nội dung còn draft, đang chờ thẩm định; không quảng bá như khóa luyện thi hoàn chỉnh. Kho từ có 577 từ/cụm từ, 24 chủ đề; A1–B2 là nhãn định hướng nội bộ, không quy đổi TOPIK.
 

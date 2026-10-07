@@ -61,90 +61,84 @@
       profile = progress.platform.profile;
     const box = el('foundation-dashboard');
     box.replaceChildren();
-    const menu = node('div', undefined, 'learning-menu');
-    const sections = [
-      ['alphabet', 'Chữ cái', 'Nhận diện 40 chữ Hangul, nghe âm tiết mẫu.'],
-      ['syllables', 'Ghép âm', 'Tự ghép chữ và tập đọc các khối âm tiết.'],
-      ['vocabulary', 'Từ vựng', 'Chọn trong 24 chủ đề, học thẻ và ôn từ em thích.'],
-      ['roadmap', 'Học theo bài', 'Hangul và giao tiếp nhập môn; mọi bài đều mở.'],
-      ['practice', 'Luyện tập', 'Tự thử câu hỏi về chữ, từ và ghép âm.']
-    ];
-    for (const [name, title, description] of sections) {
-      const b = button('', () => route(name));
-      b.dataset.study = name;
-      b.append(node('strong', title), node('span', description));
-      menu.append(b);
-    }
-    box.append(menu);
+    // Không tự chọn bài kế tiếp: chỉ mời học tiếp khi em đang dở một bài, còn lại để em tự chọn.
     const session = progress.platform.learning.session;
+    const card = node('div', undefined, 'panel next-card');
     if (session && !session.finished) {
-      const resume = node('div', undefined, 'panel');
-      resume.append(
-        node('h3', 'Bài em đang học'),
-        node('p', LessonEngine.get(session.lessonId).title),
-        button('Tiếp tục bài đang học →', () => window.LessonUI.continueLearning())
+      const lesson = LessonEngine.get(session.lessonId);
+      const step = document.createElement('progress');
+      step.max = lesson.sections.length;
+      step.value = session.currentSection;
+      step.setAttribute('aria-label', 'Tiến độ trong bài');
+      card.append(
+        node('span', 'Bài em đang học', 'card-label'),
+        node('h3', lesson.title),
+        step,
+        node('p', `Phần ${session.currentSection + 1}/${lesson.sections.length}`, 'note'),
+        button('Tiếp tục bài', () => window.LessonUI.continueLearning(), true)
       );
-      box.append(resume);
+      const other = button('Chọn bài khác', () => route('roadmap'));
+      other.dataset.study = 'roadmap';
+      card.append(other);
+    } else {
+      const open = button('Mở lộ trình', () => route('roadmap'), true);
+      open.dataset.study = 'roadmap';
+      card.append(
+        node('span', 'Bài học', 'card-label'),
+        node('h3', 'Em muốn học bài nào?'),
+        node('p', 'Hangul và giao tiếp nhập môn. Mọi bài đều mở, em chọn bài mình thích.'),
+        open
+      );
     }
-    const tools = node('div', undefined, 'actions');
-    tools.append(
-      button('Ôn đến hạn', () => window.startDueReview()),
-      button('Mục tiêu & cài đặt', () => route('settings'))
-    );
-    if (!profile) tools.append(button('Thiết lập mục tiêu →', () => route('onboarding')));
-    box.append(
-      tools,
-      node('p', 'Em chọn phần mình thích, học và ôn theo nhịp riêng. Mục đã xem không có nghĩa là đã thuộc.', 'note')
-    );
+    box.append(card);
+    const due = learningItems.filter(x => progress.srs[x.id]?.due <= localDate()).length;
+    if (due) {
+      const review = button('', () => window.startDueReview());
+      review.className = 'review-row';
+      review.append(node('strong', 'Ôn đến hạn'), node('span', due + ' mục đang chờ em'));
+      box.append(review);
+    }
+    if (!profile) {
+      const goal = button('Thiết lập mục tiêu →', () => route('onboarding'));
+      goal.className = 'link-button';
+      box.append(goal);
+    }
   }
   function renderRoadmap() {
     const p = getProgress(),
       profile = p.platform.profile;
     el('roadmap-personal').textContent = profile
-      ? `${profile.name} chọn bất kỳ bài nào mình thích. Thứ tự lộ trình chỉ là gợi ý để tìm nội dung.`
-      : 'Chọn bài theo sở thích; không cần học theo thứ tự hoặc thiết lập mục tiêu trước.';
+      ? `${profile.name} chọn bất kỳ bài nào mình thích. Thứ tự chỉ là gợi ý.`
+      : 'Mọi bài đều mở. Thứ tự chỉ là gợi ý, em chọn bài mình thích.';
     const host = el('roadmap-levels');
     host.replaceChildren();
-    // Giáo trình mới độc lập; các selector/ID legacy vẫn được giữ.
     if (window.LessonUI) window.LessonUI.renderRoadmap(host);
-    const legacyTitle = node('h3', '56 bài đọc & ôn thêm');
-    host.append(
-      legacyTitle,
-      node('p', 'Mọi bài đều mở để đọc và nghe lại. Tiến độ lộ trình cũ được giữ riêng.', 'note')
-    );
+    // 56 bài đọc cũ gom vào một thư viện, mặc định đóng để lộ trình chính gọn.
+    const library = node('details', undefined, 'legacy-library');
+    library.append(node('summary', 'Thư viện 56 bài đọc cũ'));
+    library.append(node('p', 'Đọc và nghe lại các bài từ phiên bản đầu. Tiến độ cũ được giữ nguyên.', 'note'));
     for (const level of catalog.levels) {
       if (!catalog.units.some(u => u.levelId === level.id && catalog.lessons.some(l => l.unitId === u.id))) continue;
       const card = node('article', undefined, 'panel roadmap-level');
-      card.append(node('span', 'CHẶNG ' + level.order, 'eyebrow'), node('h3', level.title), node('p', level.objective));
-      card.append(
-        node('span', level.status === 'planned' ? 'Chưa triển khai' : 'Có nội dung cơ bản · chưa đủ toàn chặng', 'pill')
-      );
-      if (level.targetWords)
-        card.append(
-          node(
-            'p',
-            `Mục tiêu giáo trình: ${level.targetWords[0]}–${level.targetWords[1]} từ tích lũy (chưa phải số từ đã cung cấp cho chặng).`,
-            'note'
-          )
-        );
+      card.append(node('h3', level.title), node('p', level.objective, 'note'));
       for (const unit of catalog.units.filter(u => u.levelId === level.id)) {
         const section = node('details'),
           lessons = catalog.lessons.filter(l => l.unitId === unit.id);
         const completed = lessons.filter(l => engine.lessonStatus(l, p, localDate()) === 'completed').length;
-        section.append(node('summary', `${unit.title} · ${completed}/${lessons.length} bài`));
+        section.append(node('summary', `${unit.title} · ${completed}/${lessons.length}`));
         for (const lesson of lessons) {
           const status = engine.lessonStatus(lesson, p, localDate());
-          const b = button(
-            `Bài ${lesson.day}: ${lesson.title} · ${status === 'completed' ? '✓ Xem lại' : 'Đọc & nghe'}`,
-            () => openLesson(lesson.id)
+          const b = button(`Bài ${lesson.day}: ${lesson.title}${status === 'completed' ? ' ✓' : ''}`, () =>
+            openLesson(lesson.id)
           );
           b.className = 'roadmap-lesson';
           section.append(b);
         }
         card.append(section);
       }
-      host.append(card);
+      library.append(card);
     }
+    host.append(library);
   }
   function openLesson(id) {
     selectedLesson = catalog.lessons.find(l => l.id === id);

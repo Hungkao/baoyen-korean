@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#251c24" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Góc học của Bảo Yến: Hangul, từ vựng qua 24 chủ đề, ví dụ và lịch ôn riêng mỗi ngày.">
 <title>Bảo Yến học tiếng Hàn ♡</title>
-<link rel="stylesheet" href="styles.css?v=b51627e8cc">
+<link rel="stylesheet" href="styles.css?v=f4b89a1cbf">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,23 +17,22 @@
 <div id="tab-lock-message" class="notice" role="status" hidden></div>
 <a class="skip-link" href="#home-title">Đến nội dung học</a>
 <main class="wrap">
-<header><span class="brand-icon" aria-hidden="true">♡</span><div class="brand-copy"><small>Một góc nhỏ dành riêng cho em</small><h1>Bảo Yến học tiếng Hàn</h1><p class="brand-sub">Học điều em thích, theo nhịp của em.</p></div><button id="open-account" class="account-shortcut" aria-label="Tài khoản và cài đặt">☰</button></header>
-<details class="progress-summary"><summary>Tiến độ đã lưu</summary><div class="stats" aria-label="Tiến độ học">
-<div class="stat"><strong id="streak">0</strong><span>Chuỗi đúng</span></div>
-<div class="stat"><strong id="score">0</strong><span>Tổng điểm</span></div>
-<div class="stat"><strong id="learned">0/52</strong><span>Mục đã xem</span></div>
-</div>
-<progress id="progress" max="52" value="0" aria-label="Số mục đã xem"></progress></details>
-<div class="platform-nav" role="navigation" aria-label="Nền tảng học"><button data-route="home">Chọn phần học</button><button data-route="roadmap">Lộ trình</button><button data-route="settings">Mục tiêu & cài đặt</button></div>
+<header class="appbar"><span class="brand-icon" aria-hidden="true">♡</span><h1>Bảo Yến học tiếng Hàn</h1><span class="score-chip" title="Tổng điểm"><span id="header-score">0</span> điểm</span><button id="open-account" class="icon-button" data-route="settings" aria-label="Cài đặt, tài khoản và sao lưu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></header>
 <div id="storage-notice" class="notice" role="status"></div>
 <div id="speech-notice" class="notice" role="status"></div>
 <section id="home" aria-labelledby="home-title">
-<h2 id="home-title" tabindex="-1">Em muốn học gì? ♡</h2><p class="muted">Chọn phần em thích, học và ôn bất cứ lúc nào.</p>
+<div class="love-note"><span class="envelope" aria-hidden="true">💌</span><div><h2 id="home-title" tabindex="-1">Chào em ♡</h2><p id="love-message"></p></div></div>
 <div id="foundation-dashboard"></div>
-<div class="love-note"><span class="envelope" aria-hidden="true">💌</span><div><strong>Một lời nhắn dành cho em</strong><p id="love-message"></p></div></div>
+<div class="panel progress-card"><h3>Hành trình của em</h3><div class="stats" aria-label="Tiến độ học">
+<div class="stat"><strong id="learned">0/52</strong><span>Mục đã xem</span></div>
+<div class="stat"><strong id="score">0</strong><span>Tổng điểm</span></div>
+<div class="stat"><strong id="streak">0</strong><span>Chuỗi đúng</span></div>
+</div>
+<progress id="progress" max="52" value="0" aria-label="Số mục đã xem"></progress></div>
 <p class="tiny-footer">Dành cho Bảo Yến, với một chút tiếng Hàn<br>và thật nhiều yêu thương ♡</p>
 </section>
 <section id="alphabet" aria-labelledby="alphabet-title" hidden>
+<div class="segmented" aria-label="Chữ cái hoặc ghép âm"><button data-subscreen="alphabet">Chữ cái</button><button data-subscreen="syllables">Ghép âm</button></div>
 <h2 id="alphabet-title" tabindex="-1">Làm quen với Hangul</h2><p class="muted">Chạm một chữ để xem cách đọc và nghe thử nhé.</p>
 <div id="letter-detail" class="panel detail" aria-live="polite"><span class="muted">Bắt đầu với ㅏ — âm “a” quen thuộc 🌸</span></div>
 <h3>8 nguyên âm cơ bản</h3><div id="vowels" class="grid"></div>
@@ -44,17 +43,17 @@
 <p class="note">Phiên âm tiếng Việt chỉ gần đúng. Phụ âm được nghe qua âm tiết mẫu ghép với ㅏ. Chữ ㅇ không phát âm ở đầu âm tiết, đọc “ng” ở cuối.</p>
 </section>
 <section id="vocabulary" aria-labelledby="vocabulary-title" hidden>
-<span class="eyebrow">Một từ mới, một điều muốn kể</span><h2 id="vocabulary-title" tabindex="-1">Khu vườn từ vựng của em</h2><p class="muted">Chọn một chủ đề em thích. Thử nhớ nghĩa trước khi mở thẻ nhé ♡</p>
-<div class="vocab-filters"><label>Chặng học<select id="level-filter"><option value="all">Tất cả các chặng</option><option value="A1">A1 · Sơ cấp 1</option><option value="A2">A2 · Sơ cấp 2</option><option value="B1">B1 · Trung cấp 1</option><option value="B2">B2 · Trung cấp 2</option></select></label><label>Chủ đề<select id="topic-select"></select></label></div>
+<h2 id="vocabulary-title" tabindex="-1">Từ vựng</h2><p class="muted">Thử nhớ nghĩa trước rồi mới lật thẻ nhé ♡</p>
+<div class="vocab-filters"><label>Cấp độ<select id="level-filter"><option value="all">Tất cả các chặng</option><option value="A1">A1 · Sơ cấp 1</option><option value="A2">A2 · Sơ cấp 2</option><option value="B1">B1 · Trung cấp 1</option><option value="B2">B2 · Trung cấp 2</option></select></label><label>Chủ đề<select id="topic-select"></select></label></div>
 <details class="topic-directory"><summary>Khám phá 24 chủ đề</summary><div id="topic-filter" class="topic-filter" role="group" aria-label="Chọn chủ đề"></div></details>
 <div id="topic-overview" class="topic-overview" role="status"></div>
-<div class="panel detail word-card" id="word-card"><div id="word-counter" class="counter"></div><span id="word-level" class="pill"></span><div id="word-ko" class="large-ko" lang="ko"></div><div id="word-roman" class="romanization"></div><button id="reveal-word" class="reveal-button" aria-expanded="false" aria-controls="word-details">♡ Xem nghĩa & ví dụ</button><div id="word-details" hidden><p id="word-meaning" class="meaning"></p><div class="word-example"><span class="eyebrow">Đặt vào một câu nhỏ</span><p id="word-example-ko" lang="ko"></p><p id="word-example-vi"></p><button id="listen-example">🔊 Nghe ví dụ</button></div><p class="note">Em tự nhớ nghĩa trước khi mở thẻ được không?</p><div class="actions"><button id="again-word">Cần ôn lại</button><button id="remember-word" class="primary">Em nhớ được ♡</button></div><p id="word-rating-status" class="note" role="status"></p></div><div class="actions"><button id="prev-word" aria-label="Từ trước">← Trước</button><button id="listen-word">🔊 Nghe từ</button><button id="next-word" class="primary">Tiếp →</button></div></div>
+<div class="panel detail word-card" id="word-card"><div id="word-counter" class="counter"></div><span id="word-level" class="pill"></span><div id="word-ko" class="large-ko" lang="ko"></div><div id="word-roman" class="romanization"></div><button id="reveal-word" class="reveal-button" aria-expanded="false" aria-controls="word-details">♡ Xem nghĩa & ví dụ</button><div id="word-details" hidden><p id="word-meaning" class="meaning"></p><div class="word-example"><span class="eyebrow">Đặt vào một câu nhỏ</span><p id="word-example-ko" lang="ko"></p><p id="word-example-vi"></p><button id="listen-example">🔊 Nghe ví dụ</button></div><div class="actions"><button id="again-word">Cần ôn lại</button><button id="remember-word" class="primary">Em nhớ được ♡</button></div><p id="word-rating-status" class="note" role="status"></p></div><div class="actions"><button id="prev-word" aria-label="Từ trước">← Trước</button><button id="listen-word" aria-label="Nghe từ">🔊 Nghe</button><button id="next-word" class="primary">Tiếp →</button></div></div>
 <div class="topic-actions"><button id="practice-topic-btn" class="primary">Luyện 10 câu trong nhóm này →</button><button id="review-topic-btn">Ôn đến hạn trong nhóm này</button></div><p id="topic-action-message" class="note" role="status"></p>
-<p class="note">Đã xem không có nghĩa là đã thuộc. Lịch ôn dựa trên câu trả lời và tự đánh giá của em. Nhãn A1–B2 định hướng độ khó nội dung; không quy đổi chính thức sang cấp TOPIK hoặc chứng nhận trình độ.</p>
 </section>
 <section id="syllables" aria-labelledby="syllables-title" hidden>
-<h2 id="syllables-title" tabindex="-1">Ghép chữ thành âm tiết</h2>
-<p class="muted">Mỗi khối chữ là một âm tiết. Ghép hai chữ bạn đã biết rồi nghe thử nhé!</p>
+<div class="segmented" aria-label="Chữ cái hoặc ghép âm"><button data-subscreen="alphabet">Chữ cái</button><button data-subscreen="syllables">Ghép âm</button></div>
+<h2 id="syllables-title" tabindex="-1">Ghép âm</h2>
+<p class="muted">Mỗi khối chữ là một âm tiết. Ghép thử rồi nghe nhé!</p>
 <div class="panel">
 <h3 style="margin-top:0">1. Hiểu một khối chữ</h3>
 <p><span lang="ko">ㄱ + ㅏ = 가</span> (ga). Phụ âm đứng trước, nguyên âm theo sau. Với ㅏ, ㅓ, ㅣ, ㅐ, ㅔ, hai chữ thường nằm cạnh nhau; với ㅗ, ㅜ, ㅡ, nguyên âm nằm dưới.</p>
@@ -77,17 +76,16 @@
 <p id="lesson-progress" class="counter"></p><div id="lesson-buttons" class="lesson-buttons"></div>
 <div class="detail"><div id="lesson-ko" class="large-ko" lang="ko"></div><div id="lesson-roman" class="romanization"></div><p id="lesson-explanation"></p><p id="lesson-feedback" class="lesson-feedback" role="status"></p></div>
 <div class="actions"><button id="prev-lesson">← Trước</button><button id="listen-lesson">🔊 Nghe mẫu</button><button id="complete-lesson" class="primary">Đã đọc, bài tiếp →</button></div>
-<p class="note">“Đã đọc” lưu riêng cho 6 ví dụ này. Bộ đếm phía trên dành cho chữ cái và từ vựng đã xem.</p>
 </div>
 </section>
 <section id="practice" aria-labelledby="practice-title" hidden>
-<h2 id="practice-title" tabindex="-1">Thử một câu nhỏ nhé</h2><p class="muted">Mỗi câu đúng +10 điểm. Sai cũng là một cách học!</p>
-<div class="actions"><button id="back-vocab" hidden>← Về từ vựng</button><button id="free-practice">Ôn tự do</button></div>
+<h2 id="practice-title" tabindex="-1">Luyện tập</h2><p class="muted">Mỗi câu đúng +10 điểm. Sai cũng là một cách học.</p>
 <p id="topic-session-status" class="note" role="status" hidden></p><div id="question-panel" class="panel"><div id="question-type" class="counter"></div><div id="question-ko" class="large-ko detail" lang="ko"></div><button id="listen-question" hidden style="margin:8px auto;display:block">🔊 Nghe câu hỏi</button><p id="question-prompt" class="detail"></p><div id="answers" class="answers"></div><div id="feedback" class="feedback" role="status" aria-live="polite"></div><button id="next-question" class="primary" hidden>Câu tiếp →</button></div>
+<div class="actions practice-tools"><button id="back-vocab" hidden>← Về từ vựng</button><button id="free-practice">Đổi sang ôn tự do</button></div>
 <div id="session-summary" class="panel" hidden><span class="eyebrow">Một buổi nhỏ đã xong ♡</span><h3 id="session-result" tabindex="-1"></h3><p id="session-note"></p><div id="session-mistakes"></div><button id="repeat-topic" class="primary">Luyện thêm một lượt</button></div>
 </section>
 <section id="onboarding" aria-labelledby="onboarding-title" hidden>
-<span class="eyebrow">Bắt đầu từ chính em</span><h2 id="onboarding-title" tabindex="-1">Thiết kế lộ trình của em ♡</h2><p class="muted">Chọn mục tiêu vừa sức. Em có thể thay đổi sau; các câu trả lời này không thay thế bài kiểm tra trình độ.</p>
+<h2 id="onboarding-title" tabindex="-1">Mục tiêu của em ♡</h2><p class="muted">Chọn mục tiêu vừa sức. Em có thể thay đổi sau; các câu trả lời này không thay thế bài kiểm tra trình độ.</p>
 <form id="onboarding-form" class="panel platform-form">
 <label for="profile-name">Tên muốn được gọi</label><input id="profile-name" name="name" maxlength="60" required value="Bảo Yến" autocomplete="given-name">
 <label for="profile-experience">Em đã học tiếng Hàn chưa?</label><select id="profile-experience" name="experience" required><option value="new">Chưa, em bắt đầu từ số 0</option><option value="some">Đã học một chút</option><option value="regular">Đã học thường xuyên</option></select>
@@ -99,9 +97,9 @@
 <p class="note">Mục tiêu là lựa chọn riêng của em, không giới hạn nội dung được học. Em có thể bỏ qua thiết lập và chọn bất kỳ bài nào.</p>
 <button class="primary" type="submit">Lưu mục tiêu & xem lộ trình →</button><p id="profile-feedback" role="status"></p>
 </form></section>
-<section id="roadmap" aria-labelledby="roadmap-title" hidden><span class="eyebrow">Mỗi chặng, một bước tiến</span><h2 id="roadmap-title" tabindex="-1">Lộ trình tiếng Hàn của em</h2><p id="roadmap-personal" class="muted"></p><p class="note">Bài đã hoàn thành luôn xem lại được. Điều kiện hoàn thành hiện tại là xem đủ nội dung và đạt bài luyện; chưa phải đánh giá thành thạo một level.</p><div id="roadmap-levels"></div></section>
+<section id="roadmap" aria-labelledby="roadmap-title" hidden><h2 id="roadmap-title" tabindex="-1">Bài học</h2><p id="roadmap-personal" class="muted"></p><div id="roadmap-levels"></div></section>
 <section id="lesson-outline" aria-labelledby="lesson-outline-title" hidden><button data-route="roadmap">← Về lộ trình</button><h2 id="lesson-outline-title" tabindex="-1">Nội dung bài học</h2><div id="lesson-outline-body"></div></section>
-<section id="settings" aria-labelledby="settings-title" hidden><h2 id="settings-title" tabindex="-1">Mục tiêu & cài đặt</h2><div class="panel"><h3>Mục tiêu của em</h3><p id="settings-profile"></p><button data-route="onboarding">Điều chỉnh mục tiêu</button></div><div class="panel"><label class="check-row"><input id="show-romanization" type="checkbox" checked> Hiện gợi ý phiên âm La-tinh</label><p class="note">Có thể tắt khi em đã quen với Hangul.</p><p id="settings-feedback" role="status"></p></div><div class="panel"><h3>Lưu lại hành trình</h3><p id="platform-cloud-status" role="status"></p><button data-route="account">Tài khoản, đồng bộ & sao lưu</button></div></section>
+<section id="settings" aria-labelledby="settings-title" hidden><h2 id="settings-title" tabindex="-1">Cài đặt</h2><div class="panel"><h3>Mục tiêu của em</h3><p id="settings-profile"></p><button data-route="onboarding">Điều chỉnh mục tiêu</button></div><div class="panel"><label class="check-row"><input id="show-romanization" type="checkbox" checked> Hiện gợi ý phiên âm La-tinh</label><p class="note">Có thể tắt khi em đã quen với Hangul.</p><p id="settings-feedback" role="status"></p></div><div class="panel"><h3>Lưu lại hành trình</h3><p id="platform-cloud-status" role="status"></p><button data-route="account">Tài khoản, đồng bộ & sao lưu</button></div><details class="panel about-app"><summary>Về góc học này</summary><p>Đã xem một từ không có nghĩa là đã thuộc. Lịch ôn dựa trên câu trả lời và tự đánh giá của em.</p><p>Nhãn A1–B2 chỉ để định hướng độ khó, không quy đổi sang cấp TOPIK. App không chấm phát âm hay cấp chứng nhận.</p><p>Bài học do app tự biên soạn và đang chờ giáo viên thẩm định. Phiên âm tiếng Việt chỉ gần đúng.</p></details></section>
 <section id="account" aria-labelledby="account-title" hidden>
 <h2 id="account-title" tabindex="-1">Góc riêng của Bảo Yến ♡</h2>
 <p class="muted">Giữ lại từng bước tiến nhỏ, dù em học trên điện thoại hay máy tính.</p>
@@ -119,9 +117,9 @@
 <div class="panel"><h3 style="margin-top:0">Sao lưu những cố gắng của em</h3><p class="note">Tải một file tiến độ để giữ riêng hoặc chuyển máy. File này không chứa mật khẩu hay mã đăng nhập.</p><div class="actions"><button id="export-progress">Tải bản sao lưu</button><button id="choose-import">Khôi phục từ file</button></div><input id="import-progress" type="file" accept="application/json,.json" hidden><button id="export-rescue" hidden>Tải bản dự phòng trước khi thay</button><p id="backup-message" role="status" class="note"></p></div>
 <div class="panel"><h3 style="margin-top:0">Một góc học ngay trên điện thoại</h3><button id="install-app" hidden>Cài app lên màn hình chính</button><p id="install-help" class="note">Mở app bằng một địa chỉ HTTPS để cài lên màn hình chính. Trên iPhone: Chia sẻ → Thêm vào Màn hình chính.</p><p id="offline-status" role="status" class="note"></p><button id="update-app" hidden>Cập nhật phiên bản mới</button></div>
 </section>
-<section id="lesson" aria-labelledby="lesson-title" hidden><button data-route="roadmap">← Về lộ trình</button><h2 id="lesson-title" tabindex="-1">Bài học của em</h2><p id="lesson-storage" role="status"></p><div id="lesson-body"></div></section>
+<section id="lesson" aria-labelledby="lesson-title" hidden><div class="lesson-bar"><button data-route="roadmap" class="icon-button" aria-label="Thoát bài, về lộ trình"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="lesson-bar-main"><h2 id="lesson-title" tabindex="-1">Bài học của em</h2><progress id="lesson-step" max="1" value="0" aria-label="Tiến độ trong bài"></progress></div></div><p id="lesson-storage" class="notice" role="status"></p><div id="lesson-body"></div></section>
 </main>
-<nav aria-label="Màn học"><div class="inner"><button data-screen="home" aria-current="page"><span class="nav-icon" aria-hidden="true">♡</span>Học</button><button data-screen="alphabet"><span class="nav-icon" aria-hidden="true">🌸</span>Chữ cái</button><button data-screen="syllables"><span class="nav-icon" aria-hidden="true">🧩</span>Ghép âm</button><button data-screen="vocabulary"><span class="nav-icon" aria-hidden="true">💌</span>Từ vựng</button><button data-screen="practice"><span class="nav-icon" aria-hidden="true">✧</span>Luyện tập</button></div></nav>
+<nav aria-label="Màn học"><div class="inner"><button data-screen="home" aria-current="page"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>Học</button><button data-screen="alphabet"><span class="nav-icon nav-glyph" lang="ko" aria-hidden="true">한</span>Chữ cái</button><button data-screen="vocabulary"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5zM5 20.5A2.5 2.5 0 0 0 7.5 23H19v-5"/></svg>Từ vựng</button><button data-screen="roadmap"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="6" r="2.2"/><path d="M8 17h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6"/></svg>Bài học</button><button data-screen="practice"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg>Luyện tập</button></div></nav>
 <script src="config.js?v=d4617a4857" defer></script>
 <script src="course-content.js?v=2497d82d27" defer></script>
 <script src="exercise-engine.js?v=f780bb500f" defer></script>
@@ -134,11 +132,11 @@
 <script src="srs.js?v=ecbb5e9be9" defer></script>
 <script src="progress-store.js?v=2c87d9a371" defer></script>
 <script src="speech.js?v=98d9a7842c" defer></script>
-<script src="app.js?v=20fe6a3d07" defer></script>
+<script src="app.js?v=8bfca1e561" defer></script>
 <script src="tab-lock.js?v=64c5337e30" defer></script>
 <script src="account.js?v=1e7281c5d0" defer></script>
-<script src="platform-ui.js?v=3ab1ad2513" defer></script>
-<script src="lesson-renderer.js?v=d64d9e0911" defer></script>
+<script src="platform-ui.js?v=42c067c41b" defer></script>
+<script src="lesson-renderer.js?v=caa9d880a6" defer></script>
 <script src="pwa.js?v=58d44aea55" defer></script>
 </body>
 </html>

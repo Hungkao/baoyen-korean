@@ -32,7 +32,10 @@ assert.ok(E.transition(E.empty(), { type: 'start', lessonId: 'unknown' }).error)
     assert.equal(await p.locator('.legacy-daily').isVisible(), false);
     assert.doesNotMatch(await p.locator('#home').innerText(), /Buổi học hôm nay|Hôm nay em có thể|phút\/ngày/);
     for (const name of ['alphabet', 'syllables', 'vocabulary', 'practice']) {
-      await p.locator('[data-study=' + name + ']').click();
+      if (name === 'syllables') {
+        await p.locator('[data-screen=alphabet]').click();
+        await p.locator('#alphabet [data-subscreen=syllables]').click();
+      } else await p.locator('[data-screen=' + name + ']').click();
       assert.equal(await p.locator('#' + name).isVisible(), true);
       await p.locator('[data-screen=home]').click();
     }
@@ -53,6 +56,9 @@ assert.ok(E.transition(E.empty(), { type: 'start', lessonId: 'unknown' }).error)
     await p.locator('[data-lesson=h2-a-eo]').click();
     assert.equal(await p.evaluate(() => state.platform.learning.session.lessonId), 'h2-a-eo');
     assert.equal(await p.evaluate(() => state.completedDays.length), 0);
+    // Đang học thì thanh dưới ẩn; thoát bài bằng nút ✕ rồi mới về trang Học.
+    assert.equal(await p.locator('nav').isVisible(), false);
+    await p.locator('#lesson [data-route=roadmap]').click();
     await p.locator('[data-screen=home]').click();
     for (const theme of ['light', 'dark']) {
       await p.emulateMedia({ colorScheme: theme });

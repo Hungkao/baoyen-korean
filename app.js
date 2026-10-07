@@ -31,6 +31,7 @@ function save(silent = false) {
 }
 function updateStats() {
   $('score').textContent = state.score;
+  $('header-score').textContent = state.score;
   $('streak').textContent = state.streak;
   $('learned').textContent = state.learned.length + '/' + total;
   $('progress').max = total;
@@ -498,6 +499,7 @@ function newQuestion() {
   $('question-type').textContent =
     type === 'letter' ? 'CHỮ CÁI • Phiên âm' : type === 'word' ? 'TỪ VỰNG • Nghĩa tiếng Việt' : 'GHÉP ÂM • Tập đọc';
   $('question-ko').textContent = item.ko;
+  $('question-ko').classList.toggle('is-letter', type === 'letter');
   $('question-prompt').textContent =
     type === 'word'
       ? 'Từ này có nghĩa là gì?'
@@ -545,6 +547,7 @@ function answerQuestion(answer, button) {
     state.score = Math.min(Number.MAX_SAFE_INTEGER, state.score + 10);
     state.streak = Math.min(Number.MAX_SAFE_INTEGER, state.streak + 1);
     $('feedback').textContent = 'Đúng rồi! +10 điểm 🌷';
+    celebrate(button);
   } else {
     state.streak = 0;
     button.classList.add('wrong');
@@ -567,6 +570,20 @@ function answerQuestion(answer, button) {
     }, 2400);
 }
 $('next-question').addEventListener('click', newQuestion);
+// Một trái tim nhỏ bay lên từ đáp án đúng; tắt khi người dùng giảm chuyển động.
+function celebrate(target) {
+  if (!target || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const heart = document.createElement('span');
+  heart.className = 'float-heart';
+  heart.textContent = '♡ +10';
+  heart.setAttribute('aria-hidden', 'true');
+  const box = target.getBoundingClientRect();
+  heart.style.left = box.left + box.width / 2 + 'px';
+  heart.style.top = box.top + 'px';
+  document.body.append(heart);
+  heart.addEventListener('animationend', () => heart.remove());
+  if (navigator.vibrate) navigator.vibrate(12);
+}
 function showScreen(next) {
   const screens = [
     'home',
@@ -587,8 +604,12 @@ function showScreen(next) {
   screen = next;
   for (const id of screens) $(id).hidden = id !== screen;
   document.querySelector('.skip-link').href = '#' + screen + '-title';
-  document.querySelectorAll('nav button').forEach(node => {
-    if (node.dataset.screen === screen) node.setAttribute('aria-current', 'page');
+  document.body.dataset.view = screen;
+  // Ghép âm là tab con của Chữ cái; lộ trình và nội dung bài cũ thuộc tab Bài học.
+  const tab = screen === 'syllables' ? 'alphabet' : screen === 'lesson-outline' ? 'roadmap' : screen;
+  document.querySelectorAll('nav button, [data-subscreen]').forEach(node => {
+    if ((node.dataset.screen || node.dataset.subscreen) === (node.dataset.subscreen ? screen : tab))
+      node.setAttribute('aria-current', 'page');
     else node.removeAttribute('aria-current');
   });
   if (screen === 'home') renderHome();
@@ -602,10 +623,10 @@ function showScreen(next) {
   window.scrollTo({ top: 0, behavior: 'instant' });
   window.dispatchEvent(new CustomEvent('screen-changed', { detail: { screen: next } }));
 }
-document.querySelectorAll('nav button').forEach(button =>
+document.querySelectorAll('nav button, [data-subscreen]').forEach(button =>
   button.addEventListener('click', () => {
     resetPractice();
-    showScreen(button.dataset.screen);
+    showScreen(button.dataset.screen || button.dataset.subscreen);
   })
 );
 document.addEventListener('visibilitychange', () => {
@@ -686,4 +707,3 @@ window.progressStore = {
     window.dispatchEvent(new Event('progress-loaded'));
   }
 };
-$('open-account').addEventListener('click', () => showScreen('account'));

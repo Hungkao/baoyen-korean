@@ -73,6 +73,7 @@ const url = pathToFileURL(path.join(__dirname, '../index.html')).href;
     );
     assert.equal(await page.locator('.roadmap-level').count(), 2);
     assert.equal(await page.locator('.roadmap-lesson:enabled').count(), 56);
+    await page.locator('.legacy-library').evaluate(n => (n.open = true));
     await page
       .locator('.roadmap-level details')
       .first()

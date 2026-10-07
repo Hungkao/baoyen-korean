@@ -243,7 +243,8 @@ async function answerScopedQuestion(page, scope, correct) {
     await openVocabulary(page);
     await page.locator('#practice-topic-btn').click();
     await page.locator('[data-screen=home]').click();
-    await page.locator('[data-study=syllables]').click();
+    await page.locator('[data-screen=alphabet]').click();
+    await page.locator('#alphabet [data-subscreen=syllables]').click();
     assert.equal(await page.evaluate(() => topicPracticeMode), null, 'Chọn phần học khác phải bỏ phạm vi lượt chủ đề');
 
     // Ôn chủ đề chỉ lấy mục đến hạn, không lấy từ ngoài chủ đề hoặc từ chưa đến hạn.

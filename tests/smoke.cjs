@@ -22,7 +22,10 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
       for (const colorScheme of ['light', 'dark']) {
         await page.emulateMedia({ colorScheme });
         for (const screen of ['home', 'alphabet', 'syllables', 'vocabulary', 'practice']) {
-          await page.locator(`[data-screen=${screen}]`).click();
+          if (screen === 'syllables') {
+            await page.locator('[data-screen=alphabet]').click();
+            await page.locator('#alphabet [data-subscreen=syllables]').click();
+          } else await page.locator(`[data-screen=${screen}]`).click();
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
           assert.equal(
             await page
@@ -94,7 +97,8 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     await page.reload();
     assert.equal(await page.locator('#score').textContent(), '70');
     assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + total));
-    await page.locator('[data-screen=syllables]').click();
+    await page.locator('[data-screen=alphabet]').click();
+    await page.locator('#alphabet [data-subscreen=syllables]').click();
     assert.deepEqual(
       await page.evaluate(() => [
         composeSyllable('ㄱ', 'ㅏ'),
@@ -116,7 +120,8 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     await page.locator('#complete-lesson').click();
     assert.equal(await page.locator('#lesson-progress').innerText(), '6 / 6 ví dụ đã đọc');
     await page.reload();
-    await page.locator('[data-screen=syllables]').click();
+    await page.locator('[data-screen=alphabet]').click();
+    await page.locator('#alphabet [data-subscreen=syllables]').click();
     assert.equal(await page.locator('#lesson-progress').innerText(), '6 / 6 ví dụ đã đọc');
     assert.equal(await page.locator('#score').textContent(), '70');
     assert.equal(await page.locator('#learned').textContent(), await page.evaluate(() => '2/' + total));
@@ -193,7 +198,8 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
       { lang: 'ko-KR', rate: 0.8 }
     ]);
     assert.equal(await voicePage.locator('#speech-notice').innerText(), '');
-    await voicePage.locator('[data-screen=syllables]').click();
+    await voicePage.locator('[data-screen=alphabet]').click();
+    await voicePage.locator('#alphabet [data-subscreen=syllables]').click();
     await voicePage.locator('#initial-select').selectOption('ㅂ');
     await voicePage.locator('#vowel-select').selectOption('ㅏ');
     await voicePage.locator('#final-select').selectOption('ㅂ');
@@ -252,7 +258,8 @@ const url = pathToFileURL(path.resolve(__dirname, '../index.html')).href;
     assert.deepEqual(errors, []);
     await page.setViewportSize({ width: 360, height: 780 });
     await page.emulateMedia({ colorScheme: 'light' });
-    await page.locator('[data-screen=syllables]').click();
+    await page.locator('[data-screen=alphabet]').click();
+    await page.locator('#alphabet [data-subscreen=syllables]').click();
     await page.screenshot({ path: path.resolve(__dirname, '../preview-mobile.png'), fullPage: true });
     const srsCheck = await page.evaluate(() => {
       const id = 'word:물';

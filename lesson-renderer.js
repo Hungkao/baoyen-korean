@@ -39,10 +39,9 @@
       message(result.error);
       return false;
     }
+    // Chỉ báo khi có vấn đề; lưu thành công là mặc định, không cần nhắc ở mỗi bước.
     message(
-      result.stored
-        ? 'Đã lưu trên máy; tài khoản sẽ đồng bộ khi có mạng.'
-        : 'Chưa lưu được trên máy. Xuất bản sao trước khi đóng; thay đổi hiện chỉ còn trong phiên này.'
+      result.stored ? '' : 'Chưa lưu được trên máy. Xuất bản sao trước khi đóng; thay đổi hiện chỉ còn trong phiên này.'
     );
     return true;
   }
@@ -69,17 +68,56 @@
   }
   function renderRoadmap(target) {
     const d = learning();
-    const head = node('div', undefined, 'panel');
-    head.append(
-      node('h3', 'Học theo bài ♡'),
-      node(
-        'p',
-        'Chọn bất kỳ bài hoặc chủ đề nào em thích. Thứ tự bên dưới chỉ là gợi ý; quiz giúp em tự kiểm tra, không khóa bài khác. Nội dung đang chờ thẩm định.'
-      )
-    );
-    target.append(head);
+    let current = null;
+    // Thứ tự gợi ý: chữ trước, rồi giao tiếp; mọi bài vẫn mở.
+    const groups = [
+      ['hangul', 'Hangul', 'Từ chữ cái đến đọc trọn từ.'],
+      ['basics', 'Giao tiếp nhập môn', 'Chào hỏi, giới thiệu và những câu đầu tiên.'],
+      ['sejong1a', 'Tình huống hằng ngày', '10 tình huống ngắn, nhớ bằng ví dụ.']
+    ];
+    for (const [level, title, description] of groups) {
+      const group = node('section', undefined, 'roadmap-group');
+      group.append(node('h3', title), node('p', description, 'note'));
+      for (const u of C.units.filter(u => u.levelId === level)) {
+        const progress = E.unitProgress(u.id, d),
+          box = node('details', undefined, 'panel core-unit');
+        box.dataset.unit = u.id;
+        box.open = u.lessonIds.includes(d.session?.lessonId) || u === C.units.find(x => x.levelId === level);
+        const summary = node('summary');
+        summary.append(
+          node('span', u.title, 'unit-title'),
+          node('span', progress.complete ? '✓ Xong' : progress.completed + '/' + progress.total, 'unit-count')
+        );
+        box.append(summary);
+        for (const id of u.lessonIds) {
+          const l = E.get(id),
+            status = E.status(id, d),
+            active = d.session?.lessonId === id && !d.session.finished;
+          const b = button('', () => open(id), 'core-lesson');
+          b.append(
+            node('span', status === 'completed' ? '✓' : active ? '●' : '', 'lesson-mark'),
+            node('span', l.title, 'lesson-name'),
+            node('span', status === 'completed' ? 'Xem lại' : active ? 'Đang học' : '', 'lesson-state')
+          );
+          b.setAttribute(
+            'aria-label',
+            l.title +
+              (status === 'completed' ? ', đã xong, xem lại' : active ? ', đang học, tiếp tục' : ', học bài này')
+          );
+          b.dataset.lesson = id;
+          b.dataset.status = status;
+          if (active) {
+            b.classList.add('is-current');
+            current = b;
+          }
+          box.append(b);
+        }
+        group.append(box);
+      }
+      target.append(group);
+    }
     const sources = node('details', undefined, 'curriculum-source');
-    sources.append(node('summary', 'Khung giáo trình tham khảo'));
+    sources.append(node('summary', 'Về nội dung bài học'));
     const link = node('a', C.reference.title);
     link.href = C.reference.url;
     link.target = '_blank';
@@ -87,55 +125,13 @@
     sources.append(
       node(
         'p',
-        '10 tình huống tự biên soạn theo khung chủ đề nhập môn. Đây không phải nội dung chính thức hoặc bản dịch sách.'
+        'Nội dung tự biên soạn, đang chờ giáo viên thẩm định. 10 tình huống tham khảo khung chủ đề của giáo trình dưới đây; đây không phải bản dịch sách.'
       ),
       link
     );
     target.append(sources);
-    for (const level of ['sejong1a', 'hangul', 'basics']) {
-      target.append(
-        node(
-          'h3',
-          level === 'sejong1a'
-            ? '10 tình huống · học gọn, nhớ bằng ví dụ'
-            : level === 'hangul'
-              ? 'Hangul · từ chữ đến đọc'
-              : 'Bốn chủ đề nhập môn đã có'
-        )
-      );
-      for (const u of C.units.filter(u => u.levelId === level)) {
-        const progress = E.unitProgress(u.id, d),
-          box = node('details', undefined, 'panel core-unit');
-        box.dataset.unit = u.id;
-        box.open = u.lessonIds.includes(d.session?.lessonId) || u === C.units.find(x => x.levelId === level);
-        box.append(
-          node(
-            'summary',
-            u.title + ' · ' + progress.completed + '/' + progress.total + (progress.complete ? ' · Hoàn thành' : '')
-          )
-        );
-        const bar = document.createElement('progress');
-        bar.max = progress.total;
-        bar.value = progress.completed;
-        bar.setAttribute('aria-label', 'Tiến độ ' + u.title);
-        box.append(bar);
-        for (const id of u.lessonIds) {
-          const l = E.get(id),
-            status = E.status(id, d);
-          const label =
-            status === 'completed'
-              ? '✓ Xem lại'
-              : d.session?.lessonId === id && !d.session.finished
-                ? '→ Tiếp tục'
-                : '→ Học bài này';
-          const b = button(l.title + ' · ' + label, () => open(id), 'core-lesson');
-          b.dataset.lesson = id;
-          b.dataset.status = status;
-          box.append(b);
-        }
-        target.append(box);
-      }
-    }
+    // Đưa bài đang học vào tầm mắt khi mở lộ trình.
+    if (current) requestAnimationFrame(() => current.scrollIntoView({ block: 'center', behavior: 'instant' }));
   }
   function vocabulary(l, container) {
     for (const id of l.vocabularyIds) {
@@ -260,7 +256,7 @@
     }
     if (!review && passed) {
       container.append(
-        button('Chọn phần học →', () => showScreen('home'), 'primary'),
+        button('Về trang Học', () => showScreen('home'), 'primary'),
         button('Ôn từ đến hạn', () => window.startDueReview())
       );
     }
@@ -334,10 +330,7 @@
       loadVoices();
       const unavailable = !koreanVoice || typeof window.SpeechSynthesisUtterance !== 'function';
       fallback = fallback || unavailable;
-      host.append(
-        audio(e.audio),
-        node('p', 'Nguồn âm thanh: giọng đọc Hàn của thiết bị (Web Speech), tốc độ 0.8.', 'note')
-      );
+      host.append(audio(e.audio));
       const fallbackText = node(
         'p',
         fallback ? e.fallbackPrompt : 'Bấm nghe. Nếu không phát được, em có thể chuyển sang bài đọc tương đương.',
@@ -521,6 +514,9 @@
       return;
     }
     document.getElementById('lesson-title').textContent = l.title;
+    const step = document.getElementById('lesson-step');
+    step.max = l.sections.length;
+    step.value = s?.lessonId === l.id && !s.finished ? s.currentSection + 1 : l.sections.length;
     const status = E.status(l.id, data);
     if (viewing && status === 'completed') {
       renderReview(l, data);
@@ -537,19 +533,22 @@
       sectionKey = key;
       exerciseIndex = null;
     }
-    host.append(
-      node('p', `Phần ${s.currentSection + 1}/${l.sections.length} · ${section.title}`, 'pill'),
-      node('p', 'Nội dung học thử · Chưa được giáo viên thẩm định', 'note')
-    );
+    const head = node('div', undefined, 'lesson-step-head');
+    head.append(node('span', `Phần ${s.currentSection + 1}/${l.sections.length} · ${section.title}`, 'note'));
     if (s.currentSection > 0)
-      host.append(
-        button('← Phần trước', () => {
-          if (act({ type: 'back' })) {
-            exerciseIndex = null;
-            render();
-          }
-        })
+      head.append(
+        button(
+          '← Phần trước',
+          () => {
+            if (act({ type: 'back' })) {
+              exerciseIndex = null;
+              render();
+            }
+          },
+          'back-link'
+        )
       );
+    host.append(head);
     if (section.type === 'INTRO') {
       host.append(node('p', l.description), node('h3', 'Sau bài này em có thể'));
       const list = node('ul');
@@ -558,18 +557,16 @@
         list,
         node(
           'p',
-          `Khoảng ${l.estimatedMinutes} phút (ước lượng). Xem đủ phần, trả lời đủ câu và đạt quiz ≥ ${l.completionRules.quizThreshold}%.`
-        )
+          `Khoảng ${l.estimatedMinutes} phút. Bài hoàn thành khi em đi hết các phần và đạt quiz từ ${l.completionRules.quizThreshold}%.`,
+          'note'
+        ),
+        node('p', 'Nội dung học thử, chưa được giáo viên thẩm định.', 'note')
       );
       if (l.referenceTheme)
         host.append(
           node(
             'p',
-            'Tình huống: ' +
-              l.referenceTheme +
-              ' · Khung tham khảo ' +
-              C.reference.title +
-              '. Ví dụ và bài tập do app tự biên soạn.',
+            'Tình huống: ' + l.referenceTheme + ' (tham khảo ' + C.reference.title + ', nội dung tự biên soạn).',
             'note'
           )
         );
@@ -585,7 +582,7 @@
       host.append(
         node('h3', 'Em vừa học'),
         node('p', l.objectives.join(' ')),
-        node('p', 'Từ đã gặp và bài đã hoàn thành không đồng nghĩa đã thuộc. Em vẫn có thể ôn lại.')
+        node('p', 'Em có thể quay lại ôn bài này bất cứ lúc nào.', 'note')
       );
     nextButton(section);
   }

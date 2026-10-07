@@ -71,6 +71,7 @@ const progress = score => ({
       updateStats();
     });
     await page.locator('#open-account').click();
+    await page.locator('#settings [data-route=account]').click();
     async function login(email) {
       await page.waitForFunction(() => !window.tabAccess || window.tabAccess.writable());
       await page.locator('#account-email').fill(email);
@@ -151,6 +152,7 @@ const progress = score => ({
     });
     await page.reload();
     await page.locator('#open-account').click();
+    await page.locator('#settings [data-route=account]').click();
     await page.waitForFunction(() => document.getElementById('sync-status').textContent.startsWith('Đã đồng bộ'));
     assert.equal(refreshes, 1);
     assert.equal(await page.evaluate(() => state.platform.profile.minutes), 20);

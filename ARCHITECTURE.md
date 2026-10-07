@@ -28,7 +28,7 @@ Giáo trình chính: 23 unit, 43 bài/checkpoint (25 Hangul, 8 sơ cấp cũ và
 
 56 bài cũ đều mở để đọc/nghe qua lesson-outline. Giao diện bài hằng ngày cũ đã được gỡ; dữ liệu completedDays/daily vẫn được chuẩn hóa và giữ nguyên để tương thích, không bị xóa hoặc tự tăng khi xem bài. Lộ trình chỉ giúp tìm nội dung, không quyết định quyền học.
 
-Trang chính có năm nút chọn phần học, nút tiếp tục khi có phiên dang dở và ôn đến hạn tùy chọn. Không tự chọn bài kế tiếp hoặc hiển thị lịch học hôm nay. Khi chọn bài khác, xác nhận thay phiên đang học; kết quả bài đã hoàn thành vẫn giữ.
+Thanh dưới là điều hướng chính (Học, Chữ cái/Ghép âm, Từ vựng, Bài học, Luyện tập). Trang Học có thẻ tiếp tục khi có phiên dang dở (không thì mời mở lộ trình), ôn đến hạn khi có mục đến hạn và tiến độ. Màn bài học ẩn header và thanh dưới (body[data-view=lesson]). Không tự chọn bài kế tiếp hoặc hiển thị lịch học hôm nay. Khi chọn bài khác, xác nhận thay phiên đang học; kết quả bài đã hoàn thành vẫn giữ.
 
 Các bài s1-* có referenceTheme, memoryCue, dialogue và recallPrompt/recallAnswer trong dữ liệu nội dung; renderer tạo DOM bằng textContent. Các trường này không mở rộng storage. Nguồn và phạm vi: docs/CURRICULUM_REFERENCE.md.
 
