@@ -1,0 +1,21 @@
+{
+  "name": "baoyen-korean",
+  "private": true,
+  "description": "Bảo Yến học tiếng Hàn — web tĩnh HTML/CSS/JS thuần, không cần build để học.",
+  "scripts": {
+    "serve": "node scripts/serve.cjs",
+    "build": "node scripts/package-release.cjs",
+    "test": "node scripts/run-tests.cjs",
+    "test:unit": "node scripts/run-tests.cjs --unit",
+    "format": "prettier --write \"**/*.{js,cjs,css}\"",
+    "format:check": "prettier --check \"**/*.{js,cjs,css}\"",
+    "content-report": "node scripts/content-report.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "prettier": "3.9.9"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

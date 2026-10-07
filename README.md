@@ -34,32 +34,28 @@ Web Speech chọn giọng Hàn, ko-KR, rate 0.8. Chỉ hủy giọng khi đang �
 
 ## Phát triển và kiểm thử
 
-Chạy node scripts/serve.cjs, mở http://127.0.0.1:4173. Node/Playwright chỉ cần cho phát triển. Dùng Edge đặt BROWSER_CHANNEL=msedge; nếu dùng runtime chung, đặt NODE_PATH tới node_modules của runtime.
+Lần đầu: `npm install` rồi `npx playwright install chromium`. Node/Playwright/Prettier chỉ cần cho phát triển, không cần để học.
 
-Trong PowerShell:
+| Lệnh | Việc làm |
+|---|---|
+| `npm run serve` | Server phát triển, mở http://127.0.0.1:4173 |
+| `npm test` | Chạy toàn bộ test (tự bật server nếu chưa chạy) |
+| `npm run test:unit` | Chỉ test không cần trình duyệt (nhanh) |
+| `npm run format` | Định dạng JS/CSS bằng Prettier; CI chạy `format:check` |
+| `npm run build` | Đồng bộ `sw.js` và tạo `dist/` |
+| `npm run content-report` | Tạo lại docs/CONTENT_MATRIX.md |
 
-```powershell
-$env:BROWSER_CHANNEL = 'msedge'
-node tests/smoke.cjs
-node tests/topics.cjs
-node tests/foundation.cjs
-node tests/learning.cjs
-node tests/release.cjs
-node tests/free-learning.cjs
-node tests/sejong-content.cjs
-# Giữ scripts/serve.cjs chạy trong terminal khác:
-node tests/account-pwa.cjs
-```
+Mặc định test chạy bằng Chromium của Playwright. Muốn dùng Edge trong PowerShell: `$env:BROWSER_CHANNEL = 'msedge'` trước `npm test`. Thêm file test mới phải khai báo trong scripts/run-tests.cjs (runner báo lỗi nếu quên).
 
-Test tài khoản dùng API giả lập, không gửi email thật. Ma trận nội dung: node scripts/content-report.cjs. Bộ release kiểm tra ngữ cảnh câu hỏi, bao phủ chữ, bảo toàn snapshot đạt và asset/cache.
+Test tài khoản dùng API giả lập, không gửi email thật. Bộ release kiểm tra ngữ cảnh câu hỏi, bao phủ chữ, bảo toàn snapshot đạt và asset/cache.
 
 ## Phát hành
 
 GitHub Actions tự kiểm thử và deploy lên VPS Vultr khi push vào `main`, sau khi cài SSH key và hai secret. Xem [thiết lập CI/CD Vultr](docs/VULTR_DEPLOY.md).
 
-Chạy node scripts/package-release.cjs để tạo dist gồm 21 file runtime/icons. Chỉ đưa nội dung dist lên hosting HTTPS. Netlify/Vercel đã cấu hình lệnh đóng gói và output dist; không cần Node trên thiết bị học. Gói cũ nên giữ riêng để phục hồi. Script từ chối đóng gói nếu dist có file ngoài allowlist.
+`npm run build` tạo dist gồm toàn bộ file runtime/icons. Chỉ đưa nội dung dist lên hosting HTTPS; không cần Node trên thiết bị học. Script từ chối đóng gói nếu dist có file ngoài allowlist.
 
-Nguồn allowlist là scripts/runtime-assets.cjs, dùng chung server và gói phát hành. Thêm runtime phải sửa allowlist và sw.js; tăng tên cache khi cập nhật, chạy test release rồi đóng gói lại. Không đưa tests, scripts, SQL, skills hoặc docs nội bộ lên web.
+Nguồn allowlist duy nhất là scripts/runtime-assets.cjs, dùng chung server và gói phát hành. Thêm file runtime: thêm vào allowlist và thẻ `<script>` trong index.html, rồi chạy `npm run build`. scripts/sync-sw.cjs tự ghi danh sách cache và tên cache theo hash nội dung vào sw.js, nên không cần tăng phiên bản cache bằng tay; nhớ commit sw.js đã cập nhật (test release báo lỗi nếu quên). Không đưa tests, scripts, SQL, skills hoặc docs nội bộ lên web.
 
 PWA cache shell cùng phiên bản, không cache API/token. Sau lần tải đầu có thể mở nội dung offline; đăng nhập/đồng bộ cần mạng. Nút cập nhật áp dụng worker mới. iPhone: Chia sẻ → Thêm vào Màn hình chính.
 
@@ -72,13 +68,11 @@ Cấu hình Site URL/Redirect URLs và email trong Supabase theo URL HTTPS thự
 ## Tài liệu
 
 - ARCHITECTURE.md: kiến trúc và luồng dữ liệu hiện hành.
-- PRODUCT_PLAN.md: phạm vi bản đầu và việc còn lại.
+- docs/PRODUCT_PLAN.md: phạm vi bản đầu và việc còn lại.
 - docs/CURRICULUM_REFERENCE.md: giáo trình tham khảo và phạm vi tự biên soạn.
 - docs/CONTENT_MATRIX.md: ma trận từng bài để thẩm định.
 - docs/RELEASE_CHECKLIST.md: hosting, backend, điện thoại và phục hồi.
-- RELEASE_REVIEW.md: kết quả rà soát trước đợt hoàn thiện.
-- RELEASE_NOTES.md: thay đổi hiện hành, kiểm thử và các mục chưa nghiệm thu.
-- PHASE2_REPORT.md: báo cáo lịch sử triển khai Phase 2.
+- docs/history/: báo cáo cũ (RELEASE_REVIEW, RELEASE_NOTES, PHASE2_REPORT), chỉ để tra cứu.
 
 Chưa xác minh âm thanh/safe-area trên iPhone/Android thật; nội dung cần người có chuyên môn tiếng Hàn duyệt. Dashboard không suy mức thành thạo hoặc sẵn sàng TOPIK từ XP, mục đã xem hay mục tiêu tự khai.
 

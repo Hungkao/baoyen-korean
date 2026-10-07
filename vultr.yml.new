@@ -1,0 +1,68 @@
+name: Test and deploy to Vultr
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+      - name: Install test tools
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check formatting
+        run: npm run format:check
+      - name: Test learning, storage, layout and PWA
+        run: npm test
+      - name: Package runtime
+        run: npm run build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: runtime
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: vultr-production
+      cancel-in-progress: false
+    environment:
+      name: production
+      url: https://baoyen.hcao.site
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: runtime
+          path: dist
+      - name: Deploy runtime over SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          test -n "$VPS_SSH_KEY" || { echo 'Missing VPS_SSH_KEY secret'; exit 1; }
+          test -n "$VPS_KNOWN_HOSTS" || { echo 'Missing VPS_KNOWN_HOSTS secret'; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/id_ed25519 ~/.ssh/known_hosts
+          trap 'rm -f ~/.ssh/id_ed25519' EXIT
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 deploy@45.76.155.252 'test -d /var/www/bao-yen && test -w /var/www/bao-yen && command -v rsync'
+          rsync -rltz --delay-updates --chmod=D755,F644 -e 'ssh -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15' dist/ deploy@45.76.155.252:/var/www/bao-yen/

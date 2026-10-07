@@ -31,20 +31,7 @@
 <h2 id="home-title" tabindex="-1">Em muốn học gì? ♡</h2><p class="muted">Chọn phần em thích, học và ôn bất cứ lúc nào.</p>
 <div id="foundation-dashboard"></div>
 <div class="love-note"><span class="envelope" aria-hidden="true">💌</span><div><strong>Một lời nhắn dành cho em</strong><p id="love-message"></p></div></div>
-<!-- DOM tương thích cho tiến độ/ngày cũ; luồng học hiện tại không dùng bảng hằng ngày. -->
-<div class="legacy-daily panel" hidden aria-label="Lộ trình 56 ngày cũ"><h3>Lộ trình 56 ngày · học thêm</h3><p class="note">Tiến độ lộ trình cũ được giữ riêng.</p>
-<div class="section-row"><h3>Cuộc hẹn trong lộ trình cũ</h3><span id="today-label" class="pill"></span></div>
-<div class="daily-card"><span id="daily-week" class="eyebrow"></span><h3 id="daily-title"></h3><p id="daily-description" class="muted"></p><ul class="task-list"><li><span class="task-dot" aria-hidden="true">1</span><span id="daily-task-label"></span></li><li><span class="task-dot" aria-hidden="true">2</span>Nghe rồi đọc lại từng mục một lần</li><li><span class="task-dot" aria-hidden="true">3</span>Làm ít nhất 5 câu, đúng ít nhất 3 câu</li></ul><button id="start-daily" class="primary">Bắt đầu bài hôm nay →</button><p id="daily-status" class="note" role="status"></p></div>
-<div class="daily-meta"><div class="panel"><strong id="day-streak">0</strong>ngày học liên tiếp 🌸</div><div class="panel"><strong id="days-completed">0/28</strong>cuộc hẹn đã hoàn thành ♡</div></div>
-<button id="review-due" class="primary">Ôn đến hạn</button><div id="daily-study" class="panel" hidden><span class="eyebrow">Một bài nhỏ, dành cho em</span><h3 id="daily-study-title"></h3><div id="daily-grammar" class="grammar-card" hidden></div><p class="note">Chạm từng thẻ để đánh dấu đã xem và nghe. Nếu máy chưa có giọng Hàn, em vẫn có thể đọc phiên âm và tiếp tục học.</p><div id="daily-items" class="daily-study-grid"></div><p id="daily-study-progress" class="note" role="status"></p><div class="actions"><button id="close-daily">Thu gọn</button><button id="daily-practice" class="primary">Luyện 5 câu →</button><button id="finish-daily" disabled>Hoàn thành ♡</button></div><p id="daily-finish-feedback" class="lesson-feedback" role="status"></p></div>
-<div class="section-row"><h3>56 ngày Bảo Yến cố gắng</h3><span class="pill">Đi chậm cũng được</span></div><div id="day-grid" class="day-grid" aria-label="Tiến độ 56 bài học"></div>
-<details><summary>Tuần 1–2 · Làm quen Hangul</summary><p>Học 22 chữ cơ bản, ghép 가, 나, 아, 한, 물, 밥 và ôn lại. Chưa cần thuộc mọi chữ trong một ngày.</p></details>
-<details><summary>Tuần 3–4 · Từ vựng đầu tiên</summary><p>30 từ gần gũi — lời chào, đồ ăn, nơi chốn, thời gian và tình cảm.</p></details>
-<details><summary>Tuần 5 · Hangul nâng cao + Ngữ pháp G1–G2</summary><p>Nguyên âm mở rộng (ㅑ ㅕ ㅛ ㅠ), nguyên âm kép (ㅘ ㅝ ㅟ…) và phụ âm căng (ㄲ ㄸ ㅃ ㅆ ㅉ). Học trật tự câu và cách giới thiệu bản thân.</p></details>
-<details><summary>Tuần 6 · Bản thân & Gia đình + G3–G4</summary><p>36 từ về bản thân và gia đình. Học trợ từ 은/는 và đuôi động từ -아요/-어요.</p></details>
-<details><summary>Tuần 7 · Ăn uống & Nơi chốn + G5–G6</summary><p>40 từ về ăn uống và nơi chốn. Học phủ định 안 và câu hỏi lên giọng.</p></details>
-<details><summary>Tuần 8 · Thời gian, Sinh hoạt & Ôn cơ bản + G7–G8</summary><p>Thời gian, động từ sinh hoạt, số đếm, màu sắc và câu thực hành. Sau chặng này, em tiếp tục học từng chủ đề trong kho từ nhé.</p></details>
-</div><p class="tiny-footer">Dành cho Bảo Yến, với một chút tiếng Hàn<br>và thật nhiều yêu thương ♡</p>
+<p class="tiny-footer">Dành cho Bảo Yến, với một chút tiếng Hàn<br>và thật nhiều yêu thương ♡</p>
 </section>
 <section id="alphabet" aria-labelledby="alphabet-title" hidden>
 <h2 id="alphabet-title" tabindex="-1">Làm quen với Hangul</h2><p class="muted">Chạm một chữ để xem cách đọc và nghe thử nhé.</p>
@@ -95,8 +82,7 @@
 </section>
 <section id="practice" aria-labelledby="practice-title" hidden>
 <h2 id="practice-title" tabindex="-1">Thử một câu nhỏ nhé</h2><p class="muted">Mỗi câu đúng +10 điểm. Sai cũng là một cách học!</p>
-<p id="practice-daily" class="practice-daily" hidden role="status"></p>
-<div class="actions"><button id="back-daily" hidden>Về bài hôm nay ♡</button><button id="back-vocab" hidden>← Về từ vựng</button><button id="free-practice">Ôn tự do</button></div>
+<div class="actions"><button id="back-vocab" hidden>← Về từ vựng</button><button id="free-practice">Ôn tự do</button></div>
 <p id="topic-session-status" class="note" role="status" hidden></p><div id="question-panel" class="panel"><div id="question-type" class="counter"></div><div id="question-ko" class="large-ko detail" lang="ko"></div><button id="listen-question" hidden style="margin:8px auto;display:block">🔊 Nghe câu hỏi</button><p id="question-prompt" class="detail"></p><div id="answers" class="answers"></div><div id="feedback" class="feedback" role="status" aria-live="polite"></div><button id="next-question" class="primary" hidden>Câu tiếp →</button></div>
 <div id="session-summary" class="panel" hidden><span class="eyebrow">Một buổi nhỏ đã xong ♡</span><h3 id="session-result" tabindex="-1"></h3><p id="session-note"></p><div id="session-mistakes"></div><button id="repeat-topic" class="primary">Luyện thêm một lượt</button></div>
 </section>
@@ -144,6 +130,10 @@
 <script src="platform-engine.js" defer></script>
 <script src="vocabulary-basic.js" defer></script>
 <script src="vocabulary-intermediate.js" defer></script>
+<script src="core-data.js" defer></script>
+<script src="srs.js" defer></script>
+<script src="progress-store.js" defer></script>
+<script src="speech.js" defer></script>
 <script src="app.js" defer></script>
 <script src="tab-lock.js" defer></script>
 <script src="account.js" defer></script>

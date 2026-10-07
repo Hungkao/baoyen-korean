@@ -16,10 +16,10 @@
 - Skill Ponytail trong .agents/skills giúp giảm phần thừa; không được bỏ tính năng đã yêu cầu, xử lý lỗi hoặc khả năng truy cập.
 
 ## Kiểm tra và bàn giao
-- Chạy tests/smoke.cjs, tests/topics.cjs và tests/account-pwa.cjs với Playwright trên máy phát triển; xem README.md để cấu hình runtime/trình duyệt.
+- Chạy `npm test` (toàn bộ test Playwright + test thuần) và `npm run format` trước khi commit; xem README.md để cấu hình trình duyệt.
 - Sau sửa logic: kiểm tra đúng/sai, chấm trùng, chuyển màn, tải lại và trường hợp storage lỗi.
 - Sau sửa giao diện: kiểm tra 360px, sáng/tối, nút 44px và không tràn ngang.
 - Kiểm tra âm thanh và safe-area trên iPhone/Android thật trước khi khẳng định hỗ trợ thiết bị đó.
-- Cập nhật README.md khi đổi cách chạy hoặc hành vi. Đưa đầy đủ các file runtime và icons lên hosting; giữ danh sách asset trong sw.js và scripts/serve.cjs đồng nhất.
+- Cập nhật README.md khi đổi cách chạy hoặc hành vi. Thêm file runtime thì sửa scripts/runtime-assets.cjs và thẻ script trong index.html, rồi `npm run build` để sw.js tự đồng bộ.
 - Báo rõ kiểm tra đã chạy và phần chưa xác minh; không khẳng định mục đã xem là đã nhớ.
 

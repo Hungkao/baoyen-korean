@@ -2,7 +2,7 @@
 
 ## Trước khi đưa lên hosting
 
-- [x] Chạy smoke, topics, foundation, learning, release, account-pwa và free-learning bằng Playwright/Edge ngày 06/10/2026; xem RELEASE_NOTES.md.
+- [x] Chạy smoke, topics, foundation, learning, release, account-pwa và free-learning bằng Playwright/Edge ngày 06/10/2026; xem docs/history/RELEASE_NOTES.md.
 - [ ] Chạy `node scripts/content-report.cjs`; người có chuyên môn thẩm định nội dung, đánh dấu bài đã duyệt sau khi có bằng chứng.
 - [x] Chạy `node scripts/package-release.cjs`; dist khớp 21 file runtime, thử file ngoài allowlist bị từ chối. Chưa upload hosting.
 - [ ] Kiểm tra config.js đúng Supabase project và chỉ chứa publishable key.
