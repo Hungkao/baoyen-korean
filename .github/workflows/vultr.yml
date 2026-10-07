@@ -14,8 +14,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      BROWSER_CHANNEL: chromium
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
@@ -23,28 +21,14 @@ jobs:
           node-version: '24'
       - name: Install test tools
         run: |
-          npm install --prefix "$RUNNER_TEMP/test-tools" --no-package-lock playwright@1.62.1
-          echo "NODE_PATH=$RUNNER_TEMP/test-tools/node_modules" >> "$GITHUB_ENV"
-          "$RUNNER_TEMP/test-tools/node_modules/.bin/playwright" install --with-deps chromium
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Check formatting
+        run: npm run format:check
       - name: Test learning, storage, layout and PWA
-        run: |
-          node scripts/serve.cjs > "$RUNNER_TEMP/bao-yen-server.log" 2>&1 &
-          server_pid=$!
-          trap 'kill "$server_pid"' EXIT
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then break; fi
-            sleep 1
-          done
-          curl --fail --silent http://127.0.0.1:4173/ > /dev/null
-          node tests/smoke.cjs
-          node tests/topics.cjs
-          node tests/account-pwa.cjs
-          node tests/foundation.cjs
-          node tests/learning.cjs
-          node tests/free-learning.cjs
-          node tests/sejong-content.cjs
-          node tests/release.cjs
-          node scripts/package-release.cjs
+        run: npm test
+      - name: Package runtime
+        run: npm run build
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: runtime

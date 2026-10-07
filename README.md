@@ -55,7 +55,7 @@ GitHub Actions tự kiểm thử và deploy lên VPS Vultr khi push vào `main`,
 
 `npm run build` tạo dist gồm toàn bộ file runtime/icons. Chỉ đưa nội dung dist lên hosting HTTPS; không cần Node trên thiết bị học. Script từ chối đóng gói nếu dist có file ngoài allowlist.
 
-Nguồn allowlist duy nhất là scripts/runtime-assets.cjs, dùng chung server và gói phát hành. Thêm file runtime: thêm vào allowlist và thẻ `<script>` trong index.html, rồi chạy `npm run build`. scripts/sync-sw.cjs tự ghi danh sách cache và tên cache theo hash nội dung vào sw.js, nên không cần tăng phiên bản cache bằng tay; nhớ commit sw.js đã cập nhật (test release báo lỗi nếu quên). Không đưa tests, scripts, SQL, skills hoặc docs nội bộ lên web.
+Nguồn allowlist duy nhất là scripts/runtime-assets.cjs, dùng chung server và gói phát hành. Thêm file runtime: thêm vào allowlist và thẻ `<script>` trong index.html, rồi chạy `npm run build`. scripts/sync-sw.cjs tự gắn `?v=<hash nội dung>` vào link JS/CSS trong index.html và ghi danh sách cache/tên cache vào sw.js. Nhờ vậy Cloudflare và trình duyệt không bao giờ trộn JS cũ với HTML mới, và không cần tăng phiên bản cache bằng tay. Sau khi sửa bất kỳ file JS/CSS nào, chạy `npm run build` rồi commit cả index.html và sw.js (test release báo lỗi nếu quên). Không đưa tests, scripts, SQL, skills hoặc docs nội bộ lên web.
 
 PWA cache shell cùng phiên bản, không cache API/token. Sau lần tải đầu có thể mở nội dung offline; đăng nhập/đồng bộ cần mạng. Nút cập nhật áp dụng worker mới. iPhone: Chia sẻ → Thêm vào Màn hình chính.
 

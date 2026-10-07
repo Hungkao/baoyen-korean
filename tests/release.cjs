@@ -58,11 +58,15 @@ assert.equal(
 );
 const assets = require('../scripts/runtime-assets.cjs');
 const html = fs.readFileSync('index.html', 'utf8');
-for (const [, src] of html.matchAll(/<script src="([^"]+)"/g)) assert.ok(assets.includes(src), src);
+for (const [, src] of html.matchAll(/<script src="([^"?]+)(\?v=[0-9a-f]{10})?"/g)) assert.ok(assets.includes(src), src);
+// JS/CSS phải có ?v= để CDN không trộn file cũ với HTML mới.
+for (const [, src, v] of html.matchAll(/<(?:script src|link rel="stylesheet" href)="([^"?]+)(\?v=[0-9a-f]{10})?"/g))
+  assert.ok(v, 'Thiếu ?v= cho ' + src);
 assert.ok(!assets.some(p => p.startsWith('tests/') || p.endsWith('.sql') || p.endsWith('.py')));
 for (const asset of assets) assert.ok(fs.existsSync(asset), asset);
 const sw = fs.readFileSync('sw.js', 'utf8');
-for (const asset of assets.filter(a => a !== 'sw.js')) assert.ok(sw.includes("'./" + asset + "'"), asset);
+for (const asset of assets.filter(a => a !== 'sw.js'))
+  assert.ok(new RegExp("'\\./" + asset.replace(/[.]/g, '\\.') + "(\\?v=[0-9a-f]{10})?'").test(sw), asset);
 require('../scripts/sync-sw.cjs').syncSw({ check: true });
 execFileSync(process.execPath, ['scripts/package-release.cjs']);
 for (const asset of assets) assert.deepEqual(fs.readFileSync('dist/' + asset), fs.readFileSync(asset), asset);
